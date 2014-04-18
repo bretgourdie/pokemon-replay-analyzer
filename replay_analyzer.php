@@ -118,19 +118,36 @@
 						case "poke":
 							//Grab the trainer
 							$ownedBy = $splitLine[2];
-							//Grab the poke species and gender
-							$speciesAndGender = $splitLine[3];
-							//Split the species from the gender
-							$speciesAndGenderSplit = explode(",", $speciesAndGender);
-							//Grab the species
-							$species = $speciesAndGenderSplit[0];
+							$species = decoupleSpeciesFromGender($splitLine[3]);
 							
 							//Create new poke
 							$newPoke = new Poke($species);
 							//Append it to the pokes array
 							array_push($pokes[$ownedBy], $newPoke);
 						break;
-							
+						
+						/*
+						//////DETECT NICKNAME
+						//If there's a switch-in, grab the nickname.
+						//We need this because moves are performed by
+						//	the pokemon by nickname, not species.
+						//	(?????????????????????????????????? why.)
+						case "switch":
+							//Grab the player and nickname
+							$playerAndNickname = $splitLine[2];
+							//Split the two
+							$playerAndNicknameSplit = explode(": ", $playerAndNickname);
+							//Get the player and nickname
+							$player = $playerAndNicknameSplit[1];
+							$nickname = $playerAndNicknameSplit[2];
+							//Remove the "a" from player
+							$player = substr($player, 0, 2);
+							//Grab the species and gender
+							$speciesAndGender = $splitLine[3];
+							//Split the two
+							$speciesAndGenderSplit = explode(", ",
+						break;
+						*/	
 						}
 					}
 				}
@@ -155,6 +172,16 @@
 				
 				echo "<br/>";
 			}
+		}
+		
+		function decoupleSpeciesFromGender($segment){
+			//$segment has the poke species and gender
+			//Split the species from the gender
+			$speciesAndGenderSplit = explode(", ", $segment);
+			//Grab the species
+			$species = $speciesAndGenderSplit[0];
+			//Return it!
+			return $species;
 		}
 		
 		?>
