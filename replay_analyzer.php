@@ -105,7 +105,7 @@
 							array_push($trainers, $newTrainer);
 							//Add a new poke array for the trainer,
 							//	indexed by trainer
-							$pokes[$player ."a"] = array();
+							$pokes[$player] = array();
 						}
 						
 						
@@ -114,7 +114,7 @@
 						//	indexed by the trainer
 						else if($splitLine[1] == "poke"){
 							//Grab the trainer
-							$ownedBy = $splitLine[2] ."a"; //Useful for move-parsing
+							$ownedBy = $splitLine[2];
 							//Grab the poke species and gender
 							$speciesAndGender = $splitLine[3];
 							//Split the species from the gender
@@ -142,7 +142,7 @@
 				
 				echo $trainers[$ii]->name ."; Player ". $trainers[$ii]->p ."<br/>";
 				
-				$trainerP = $trainers[$ii]->p ."a";
+				$trainerP = $trainers[$ii]->p;
 				$pokesForTrainer = $pokes[$trainerP];
 				for($jj = 0; $jj < count($pokes[$trainerP]); $jj++){
 					echo $pokesForTrainer[$jj]->species ."; ";
