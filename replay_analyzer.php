@@ -127,24 +127,24 @@
 							$pokes[$ownedBy][$species] = $newPoke;
 						break;
 						
-						/*
+						
 						//////DETECT NICKNAME
 						//If there's a switch-in, grab the nickname.
 						//We need this because moves are performed by
 						//	the pokemon by nickname, not species.
 						//	(?????????????????????????????????? why.)
 						case "switch":
-							$playerAndNickname = getPlayerAndNickname(splitLine[2]);
+							$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 							//Get the player and nickname
 							$player = $playerAndNickname[0];
 							$nickname = $playerAndNickname[1];
 							//Grab the species and gender
 							$species = decoupleSpeciesFromGender($splitLine[3]);
 							
-							$curPokes = $pokes[$player];
+							$pokes[$player][$species]->nickname = $nickname;
 							
 						break;
-						*/
+						
 						
 						}
 					}
@@ -163,7 +163,7 @@
 				echo $trainer->name ."; Player ". $trainer->p ."<br/>";				
 				
 				foreach($pokes[$trainer->p] as $species => $poke){
-					echo $poke->species ."; ";
+					echo $poke->species ." '". $poke->nickname ."'; ";
 				}
 				
 				
