@@ -103,15 +103,18 @@
 							$newTrainer = new Trainer($player, $trainer);
 							//Append it to the trainers array
 							array_push($trainers, $newTrainer);
+							//Add a new poke array for the trainer,
+							//	indexed by trainer
+							$pokes[$player ."a"] = array();
 						}
 						
-						/*
+						
 						//////ADD POKE
 						//If there's a new pokemon, add it to the array
 						//	indexed by the trainer
 						else if($splitLine[1] == "poke"){
 							//Grab the trainer
-							$trainer = $splitLine[2];
+							$ownedBy = $splitLine[2] ."a"; //Useful for move-parsing
 							//Grab the poke species and gender
 							$speciesAndGender = $splitLine[3];
 							//Split the species from the gender
@@ -119,11 +122,11 @@
 							//Grab the species
 							$species = $speciesAndGenderSplit[0];
 							
-							addPoke($species, $trainer);
+							//Create new poke
+							$newPoke = new Poke($species);
+							//Append it to the pokes array
+							array_push($pokes[$ownedBy], $newPoke);
 						}
-						
-						*/
-					
 					}
 				}
 				
@@ -136,27 +139,17 @@
 			
 			echo "Players:<br />";
 			for($ii = 0; $ii < count($trainers); $ii++){
-				echo $trainers[$ii]->name ."; ". $trainers[$ii]->p ."<br/>";
 				
-				//Error here
-				/*
-				for($jj = 0; $jj < count($pokes[$trainers[$ii]]); jj++){
-					echo $pokes[$trainers[$ii]][$jj]->$species ."; ";
+				echo $trainers[$ii]->name ."; Player ". $trainers[$ii]->p ."<br/>";
+				
+				$trainerP = $trainers[$ii]->p ."a";
+				$pokesForTrainer = $pokes[$trainerP];
+				for($jj = 0; $jj < count($pokes[$trainerP]); $jj++){
+					echo $pokesForTrainer[$jj]->species ."; ";
 				}
 				
 				echo "<br/>";
-				*/
 			}
-		}
-		
-		function addTrainer($player, $name){
-		}
-		
-		function addPoke($species, $ownedBy){
-			//Create new poke
-			$newPoke = new Poke($species);
-			//Append it to the pokes array
-			array_push($pokes[$ownedBy], $newPoke);
 		}
 		
 		?>
