@@ -123,7 +123,8 @@
 							//Create new poke
 							$newPoke = new Poke($species);
 							//Append it to the pokes array
-							array_push($pokes[$ownedBy], $newPoke);
+							$curTeam = $pokes[$ownedBy];
+							$pokes[$ownedBy][$species] = $newPoke;
 						break;
 						
 						/*
@@ -133,21 +134,18 @@
 						//	the pokemon by nickname, not species.
 						//	(?????????????????????????????????? why.)
 						case "switch":
-							//Grab the player and nickname
-							$playerAndNickname = $splitLine[2];
-							//Split the two
-							$playerAndNicknameSplit = explode(": ", $playerAndNickname);
+							$playerAndNickname = getPlayerAndNickname(splitLine[2]);
 							//Get the player and nickname
-							$player = $playerAndNicknameSplit[1];
-							$nickname = $playerAndNicknameSplit[2];
-							//Remove the "a" from player
-							$player = substr($player, 0, 2);
+							$player = $playerAndNickname[0];
+							$nickname = $playerAndNickname[1];
 							//Grab the species and gender
-							$speciesAndGender = $splitLine[3];
-							//Split the two
-							$speciesAndGenderSplit = explode(", ",
+							$species = decoupleSpeciesFromGender($splitLine[3]);
+							
+							$curPokes = $pokes[$player];
+							
 						break;
-						*/	
+						*/
+						
 						}
 					}
 				}
@@ -160,15 +158,14 @@
 			}
 			
 			echo "Players:<br />";
-			for($ii = 0; $ii < count($trainers); $ii++){
+			foreach($trainers as $trainer){
 				
-				echo $trainers[$ii]->name ."; Player ". $trainers[$ii]->p ."<br/>";
+				echo $trainer->name ."; Player ". $trainer->p ."<br/>";				
 				
-				$trainerP = $trainers[$ii]->p;
-				$pokesForTrainer = $pokes[$trainerP];
-				for($jj = 0; $jj < count($pokes[$trainerP]); $jj++){
-					echo $pokesForTrainer[$jj]->species ."; ";
+				foreach($pokes[$trainer->p] as $species => $poke){
+					echo $poke->species ."; ";
 				}
+				
 				
 				echo "<br/>";
 			}
@@ -182,6 +179,17 @@
 			$species = $speciesAndGenderSplit[0];
 			//Return it!
 			return $species;
+		}
+		
+		function getplayerAndNickname($segment){
+			//Grab the player and nickname in $segment
+			//Split the two
+			$playerAndNicknameSplit = explode(": ", $segment);
+			//Remove the "a" from player
+			$playerAndNicknameSplit[0] = substr(
+				$playerAndNicknameSplit[0], 0, 2
+			);
+			return $playerAndNicknameSplit;
 		}
 		
 		?>
