@@ -90,29 +90,32 @@
 					//Skip any "blank" lines
 					if(count($splitLine) > 1) {
 					
+						switch ($splitLine[1]){
+						
 						//////ADD TRAINER
 						//If there's a new trainer, add them to the array
 						//	but make sure that it's not the weird "player" command
 						//	at the bottom of the log. (what does it mean?????????)
-						if($splitLine[1] == "player" && count($splitLine) > 3){
-							//Grab the player number
-							$player = $splitLine[2];
-							//Grab the trainer name
-							$trainer = $splitLine[3];
-							//Add the trainer
-							$newTrainer = new Trainer($player, $trainer);
-							//Append it to the trainers array
-							array_push($trainers, $newTrainer);
-							//Add a new poke array for the trainer,
-							//	indexed by trainer
-							$pokes[$player] = array();
-						}
-						
+						case "player":
+							if(count($splitLine) > 3){
+								//Grab the player number
+								$player = $splitLine[2];
+								//Grab the trainer name
+								$trainer = $splitLine[3];
+								//Add the trainer
+								$newTrainer = new Trainer($player, $trainer);
+								//Append it to the trainers array
+								array_push($trainers, $newTrainer);
+								//Add a new poke array for the trainer,
+								//	indexed by trainer
+								$pokes[$player] = array();
+							}
+						break;
 						
 						//////ADD POKE
 						//If there's a new pokemon, add it to the array
 						//	indexed by the trainer
-						else if($splitLine[1] == "poke"){
+						case "poke":
 							//Grab the trainer
 							$ownedBy = $splitLine[2];
 							//Grab the poke species and gender
@@ -126,6 +129,8 @@
 							$newPoke = new Poke($species);
 							//Append it to the pokes array
 							array_push($pokes[$ownedBy], $newPoke);
+						break;
+							
 						}
 					}
 				}
