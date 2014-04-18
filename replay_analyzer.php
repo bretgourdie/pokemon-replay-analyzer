@@ -15,10 +15,40 @@
 		<h4>By Gor-Don :)</h4>
 		<?php
 		
+		class Trainer
+		{
+			public $name = "null";
+			public $p = "null";
+			
+			function __construct($p, $name){
+				$this->name = $name;
+				$this->p = $p;
+			}
+		}
+		
+		//Array of trainers
+		$trainers = array();
+		
+		class poke
+		{
+			public $species = "null";
+			public $nickname = "null";
+			//Used to maintain state in case of a toxic/burn kill
+			public $statusBy = "null";
+			public $kills = 0;
+			public $dead = false;
+			
+			function __construct($species){
+				$this->species = $species;
+			}
+		}
+		
+		//Arrays of mons indexed by trainer
+		//	$pokes[$pX][pokeX]; or something
+		$pokes = array();
+				
 		//Check if POST variable was passed
 		if(isset($_POST["page"])) {
-		
-			//echo "page was set!<br />";
 		
 			$url = $_POST["page"];
 			
@@ -48,12 +78,55 @@
 					);
 				}
 				
+				
+				//state logic here
 				if($insideLog){
 					//inside the log
-					echo $sourceByLines[$ii] . "<br />";
+					$currentLine = $sourceByLines[$ii];
 					
-					//state logic here
+					//Split currentLine by pipeline
+					$splitLine = explode("|", $currentLine);
+					
+					//Skip any "blank" lines
+					if(count($splitLine) > 1) {
+					
+						//////ADD TRAINER
+						//If there's a new trainer, add them to the array
+						//	but make sure that it's not the weird "player" command
+						//	at the bottom of the log. (what does it mean?????????)
+						if($splitLine[1] == "player" && count($splitLine) > 3){
+							//Grab the player number
+							$player = $splitLine[2];
+							//Grab the trainer name
+							$trainer = $splitLine[3];
+							//Add the trainer
+							$newTrainer = new Trainer($player, $trainer);
+							//Append it to the trainers array
+							array_push($trainers, $newTrainer);
+						}
+						
+						/*
+						//////ADD POKE
+						//If there's a new pokemon, add it to the array
+						//	indexed by the trainer
+						else if($splitLine[1] == "poke"){
+							//Grab the trainer
+							$trainer = $splitLine[2];
+							//Grab the poke species and gender
+							$speciesAndGender = $splitLine[3];
+							//Split the species from the gender
+							$speciesAndGenderSplit = explode(",", $speciesAndGender);
+							//Grab the species
+							$species = $speciesAndGenderSplit[0];
+							
+							addPoke($species, $trainer);
+						}
+						
+						*/
+					
+					}
 				}
+				
 				
 				if($atTheEnd){
 					$insideLog = false;
@@ -61,10 +134,33 @@
 				}
 			}
 			
-			echo "<p>Parse another replay...<br />";
+			echo "Players:<br />";
+			for($ii = 0; $ii < count($trainers); $ii++){
+				echo $trainers[$ii]->name ."; ". $trainers[$ii]->p ."<br/>";
+				
+				//Error here
+				/*
+				for($jj = 0; $jj < count($pokes[$trainers[$ii]]); jj++){
+					echo $pokes[$trainers[$ii]][$jj]->$species ."; ";
+				}
+				
+				echo "<br/>";
+				*/
+			}
+		}
+		
+		function addTrainer($player, $name){
+		}
+		
+		function addPoke($species, $ownedBy){
+			//Create new poke
+			$newPoke = new Poke($species);
+			//Append it to the pokes array
+			array_push($pokes[$ownedBy], $newPoke);
 		}
 		
 		?>
+		
 		<form name="input" action="replay_analyzer.php" method="post">
 			<table>
 				<tr>
