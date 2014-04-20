@@ -225,11 +225,7 @@
 		function getplayerAndNickname($segment){
 			//Grab the player and nickname in $segment
 			//Split the two
-			$playerAndNicknameSplit = explode(": ", $segment);
-			//Remove the "a" from player
-			$playerAndNicknameSplit[0] = substr(
-				$playerAndNicknameSplit[0], 0, 2
-			);
+			$playerAndNicknameSplit = explode("a: ", $segment);
 			
 			return $playerAndNicknameSplit;
 		}
