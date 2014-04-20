@@ -36,7 +36,7 @@
 			//Used to maintain state in case of a toxic/burn kill
 			public $statusBy = "null";
 			public $kills = 0;
-			public $dead = false;
+			public $fainted = 0;
 			
 			function __construct($species){
 				$this->species = $species;
@@ -98,17 +98,7 @@
 						//	at the bottom of the log. (what does it mean?????????)
 						case "player":
 							if(count($splitLine) > 3){
-								//Grab the player number
-								$player = $splitLine[2];
-								//Grab the trainer name
-								$trainer = $splitLine[3];
-								//Add the trainer
-								$newTrainer = new Trainer($player, $trainer);
-								//Append it to the trainers array
-								array_push($trainers, $newTrainer);
-								//Add a new poke array for the trainer,
-								//	indexed by trainer
-								$pokes[$player] = array();
+								addPlayer($splitLine);
 							}
 						break;
 						
@@ -116,15 +106,7 @@
 						//If there's a new pokemon, add it to the array
 						//	indexed by the trainer
 						case "poke":
-							//Grab the trainer
-							$ownedBy = $splitLine[2];
-							$species = decoupleSpeciesFromGender($splitLine[3]);
-							
-							//Create new poke
-							$newPoke = new Poke($species);
-							//Append it to the pokes array
-							$curTeam = $pokes[$ownedBy];
-							$pokes[$ownedBy][$species] = $newPoke;
+							addPoke($splitLine);
 						break;
 						
 						
@@ -134,17 +116,15 @@
 						//	the pokemon by nickname, not species.
 						//	(?????????????????????????????????? why.)
 						case "switch":
-							$playerAndNickname = getPlayerAndNickname($splitLine[2]);
-							//Get the player and nickname
-							$player = $playerAndNickname[0];
-							$nickname = $playerAndNickname[1];
-							//Grab the species and gender
-							$species = decoupleSpeciesFromGender($splitLine[3]);
-							
-							$pokes[$player][$species]->nickname = $nickname;
-							
+							grabNickname($splitLine);
 						break;
 						
+						
+						//////DETECT FAINTING
+						//If someone fainted, record it
+						case "faint":
+							recordFaint($splitLine);
+						break;
 						
 						}
 					}
@@ -160,15 +140,76 @@
 			echo "Players:<br />";
 			foreach($trainers as $trainer){
 				
-				echo $trainer->name ."; Player ". $trainer->p ."<br/>";				
+				echo $trainer->name ."<br/>";				
 				
 				foreach($pokes[$trainer->p] as $species => $poke){
-					echo $poke->species ." '". $poke->nickname ."'; ";
+					echo $poke->species .", faint=" .$poke->fainted ."; ";
 				}
 				
 				
 				echo "<br/>";
 			}
+		}
+		
+		//////CASE PLAYER
+		function addPlayer($splitLine){
+			global $pokes, $trainers;
+		
+			//Grab the player number
+			$player = $splitLine[2];
+			//Grab the trainer name
+			$trainer = $splitLine[3];
+			//Add the trainer
+			$newTrainer = new Trainer($player, $trainer);
+			//Append it to the trainers array
+			array_push($trainers, $newTrainer);
+			//Add a new poke array for the trainer,
+			//	indexed by trainer
+			$pokes[$player] = array();
+		}
+		
+		//////CASE POKE
+		function addPoke($splitLine){
+			global $pokes;
+			
+			//Grab the trainer
+			$ownedBy = $splitLine[2];
+			$species = decoupleSpeciesFromGender($splitLine[3]);
+			
+			//Create new poke
+			$newPoke = new Poke($species);
+			//Append it to the pokes array
+			$curTeam = $pokes[$ownedBy];
+			$pokes[$ownedBy][$species] = $newPoke;
+		}
+		
+		//////CASE SWITCH
+		function grabNickname($splitLine){
+			global $pokes;
+			
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+			//Get the player and nickname
+			$player = $playerAndNickname[0];
+			$nickname = $playerAndNickname[1];
+			
+			//Grab the species and gender
+			$species = decoupleSpeciesFromGender($splitLine[3]);
+			
+			$pokes[$player][$species]->nickname = $nickname;
+		}
+		
+		//////CASE FAINT
+		function recordFaint($splitLine){
+			global $pokes;
+			
+			//Get the player and nickname
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+			
+			//Get the current poke
+			$poke = &getPokeByPlayerAndNickname($playerAndNickname);
+			
+			//Assign it as fainted
+			$poke->fainted = 1;
 		}
 		
 		function decoupleSpeciesFromGender($segment){
@@ -189,7 +230,21 @@
 			$playerAndNicknameSplit[0] = substr(
 				$playerAndNicknameSplit[0], 0, 2
 			);
+			
 			return $playerAndNicknameSplit;
+		}
+		
+		function &getPokeByPlayerAndNickname($playerAndNickname){
+			global $pokes;
+			
+			$player = $playerAndNickname[0];
+			$nickname = $playerAndNickname[1];
+			
+			foreach($pokes[$player] as $species => $curPoke){
+				if($curPoke->nickname == $nickname){
+					return $curPoke;
+				}
+			}
 		}
 		
 		?>
