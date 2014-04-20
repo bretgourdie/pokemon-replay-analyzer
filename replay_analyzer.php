@@ -3,7 +3,7 @@
 <html>
 	<head>
 		<title>
-			Replay Analyzer
+			Pokemon Showdown Replay Analyzer
 		</title>
 		<meta http-equiv='Content-type' content='text/html;charset=UTF-8'>
 		
@@ -19,6 +19,7 @@
 		{
 			public $name = "null";
 			public $p = "null";
+			public $win = 0;
 			
 			function __construct($p, $name){
 				$this->name = $name;
@@ -69,6 +70,7 @@
 					);
 				}
 				
+				//found the end of the log; snip off the ending </script>
 				else if($insideLog && strpos($sourceByLines[$ii], "</script>") !== false){
 					//echo "found the end of the log<br />";
 					$atTheEnd = true;
@@ -126,6 +128,12 @@
 							recordFaint($splitLine);
 						break;
 						
+						//////DETECT WIN
+						//Someone won; record it
+						case "win":
+							recordWin($splitLine);
+						break;
+						
 						}
 					}
 				}
@@ -137,15 +145,58 @@
 				}
 			}
 			
-			echo "Players:<br />";
+			//TODO:
+			//Arrange "[Winner] def [Loser] (X-0)" before printing the table
+			$winner = "";
+			$loser = "";
+			$numberLeft = 0;
+			//Detemine the winner and the loser
 			foreach($trainers as $trainer){
-				
-				echo $trainer->name ."<br/>";				
-				
-				foreach($pokes[$trainer->p] as $species => $poke){
-					echo $poke->species .", faint=" .$poke->fainted ."; ";
+				if($trainer->win == 1){
+					$winner = $trainer;
+					
+					//Determine how many pokemon the winner had left
+					foreach($pokes[$winner->p] as $species => $poke){
+						if($poke->fainted == 0){
+							$numberLeft += 1;
+						}
+					}
 				}
 				
+				else{
+					$loser = $trainer;
+				}
+			}
+			
+			echo $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)<br/>";
+			
+			//Everything is parsed; make two pretty tables!
+			//Iterate through each trainer
+			echo "Results:<br />";
+			foreach($trainers as $trainer){
+				
+				echo "<b>". $trainer->name;
+				
+				echo "</b><br/>";
+				
+				echo "<table border=1>";
+				
+				echo "<tr>";
+					addTH("Pokemon");
+					addTH("Kills");
+					addTH("Fainted");
+				echo "</tr>";
+				
+				//Iterate through the current trainer's pokemon
+				foreach($pokes[$trainer->p] as $species => $poke){
+					echo "<tr>";
+						addTD($poke->species);
+						addTD($poke->kills);
+						addTD( $poke->fainted == 1 ? "Yes" : "No" );
+					echo "</tr>";
+				}
+				
+				echo "</table>";
 				
 				echo "<br/>";
 			}
@@ -212,6 +263,24 @@
 			$poke->fainted = 1;
 		}
 		
+		//////CASE WIN
+		function recordWin($splitLine){
+			global $trainers;
+			
+			$winner = $splitLine[2];
+			
+			foreach($trainers as $trainer){
+				if($trainer->name == $winner){
+					$trainer->win = 1;
+				}
+			}
+		}
+		
+		function setWinnerByName($winner){
+			global $trainers;
+			
+		}
+		
 		function decoupleSpeciesFromGender($segment){
 			//$segment has the poke species and gender
 			//Split the species from the gender
@@ -241,6 +310,14 @@
 					return $curPoke;
 				}
 			}
+		}
+		
+		function addTD($element){
+			echo "<td>". $element ."</td>";
+		}
+		
+		function addTH($element){
+			echo "<th>". $element ."</th>";
 		}
 		
 		?>
