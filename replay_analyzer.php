@@ -10,7 +10,7 @@
 	</head>
 	
 	<body>
-	
+		<center>
 		<h1>Pokemon Showdown Replay Analyzer</h1>
 		<h4>By Gor-Don :)</h4>
 		<?php
@@ -51,6 +51,10 @@
 		//Other variables associated with damaging moves
 		$lastMoveUsed = "";
 		$lastMovePoke = "";
+		//For weather
+		$lastSwitchPoke = "";
+		$currentWeatherSetter = "";
+		$weatherMove = 0;
 				
 		//Check if POST variable was passed
 		if(isset($_POST["page"])) {
@@ -123,6 +127,9 @@
 						//	(?????????????????????????????????? why.)
 						case "switch":
 							grabNickname($splitLine);
+							
+							//For weather
+							$lastSwitchedPoke = $splitLine[2];
 						break;
 						
 						
@@ -142,6 +149,24 @@
 						//Keep track of the last move used in case someone dies
 						case "move":
 							handleMove($splitLine);
+						break;
+						
+						//////RECORD WEATHER
+						//Keep track of who put the weather up
+						case "-weather":
+							//If it's 3, it's just upkeep
+							if(count($splitLine) < 4 && $splitLine[2] != "none"){
+								
+								if($weatherMove == 1){
+									$weatherMove = 0;
+									//weatherSetter gotten from move
+								}
+								
+								else{
+									$lastSwitchedPoke = getPlayerAndNickname($lastSwitchedPoke);
+									$currentWeatherSetter = getPokeByPlayerAndNickname($lastSwitchedPoke);
+								}
+							}
 						break;
 						
 						}
@@ -288,9 +313,26 @@
 		
 		//////CASE MOVE
 		function handleMove($splitLine){
-			global $lastMoveUsed, $lastMovePoke;
+			global $lastMoveUsed, $lastMovePoke, $weatherMove, $currentWeatherSetter;
 			
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
+			$lastMovePoke = getPokeByPlayerAndNickname($playerAndNickname);
+			
+			$lastMove = $splitLine[3];
+			
+			switch ($lastMove) {
+				case "Rain Dance":
+				case "Sunny Day":
+				case "Sandstorm":
+				case "Hail":
+					$currentWeatherSetter = $lastMovePoke;
+					$weatherMove = 1;
+				break;
+				default:
+					$lastMoveUsed = $lastMove;
+				break;
+			}
 		}
 		
 		function decoupleSpeciesFromGender($segment){
@@ -337,6 +379,8 @@
 		}
 		
 		?>
+		
+		</center>
 		
 		<form name="input" action="replay_analyzer.php" method="post">
 			<table>
