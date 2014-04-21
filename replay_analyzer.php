@@ -47,6 +47,10 @@
 		//Arrays of mons indexed by trainer
 		//	$pokes[$pX][pokeX]; or something
 		$pokes = array();
+		
+		//Other variables associated with damaging moves
+		$lastMoveUsed = "";
+		$lastMovePoke = "";
 				
 		//Check if POST variable was passed
 		if(isset($_POST["page"])) {
@@ -134,6 +138,12 @@
 							recordWin($splitLine);
 						break;
 						
+						//////RECORD MOVE
+						//Keep track of the last move used in case someone dies
+						case "move":
+							handleMove($splitLine);
+						break;
+						
 						}
 					}
 				}
@@ -145,7 +155,6 @@
 				}
 			}
 			
-			//TODO:
 			//Arrange "[Winner] def [Loser] (X-0)" before printing the table
 			$winner = "";
 			$loser = "";
@@ -168,17 +177,18 @@
 				}
 			}
 			
-			echo $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)<br/>";
+			echo "<b>". $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)</b><br/><br/>";
 			
 			//Everything is parsed; make two pretty tables!
 			//Iterate through each trainer
 			echo "Results:<br />";
 			foreach($trainers as $trainer){
 				
-				echo "<b>". $trainer->name;
+				echo "<b>". $trainer->name ."</b>";
 				
-				echo "</b><br/>";
+				echo "<br/>";
 				
+				//Start the table
 				echo "<table border=1>";
 				
 				echo "<tr>";
@@ -276,8 +286,10 @@
 			}
 		}
 		
-		function setWinnerByName($winner){
-			global $trainers;
+		//////CASE MOVE
+		function handleMove($splitLine){
+			global $lastMoveUsed, $lastMovePoke;
+			
 			
 		}
 		
