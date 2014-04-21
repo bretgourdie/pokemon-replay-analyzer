@@ -153,6 +153,7 @@
 						
 						//////RECORD WEATHER
 						//Keep track of who put the weather up
+						//Don't functionize this :<
 						case "-weather":
 							//If it's 3, it's just upkeep
 							if(count($splitLine) < 4 && $splitLine[2] != "none"){
