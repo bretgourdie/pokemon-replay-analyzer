@@ -192,17 +192,17 @@
 				echo "<table border=1>";
 				
 				echo "<tr>";
-					addTH("Pokemon");
-					addTH("Kills");
-					addTH("Fainted");
+					echo addTH("Pokemon");
+					echo addTH("Kills");
+					echo addTH("Fainted");
 				echo "</tr>";
 				
 				//Iterate through the current trainer's pokemon
 				foreach($pokes[$trainer->p] as $species => $poke){
 					echo "<tr>";
-						addTD($poke->species);
-						addTD($poke->kills);
-						addTD( $poke->fainted == 1 ? "Yes" : "No" );
+						echo addTD($poke->species);
+						echo addTD($poke->kills);
+						echo addTD( $poke->fainted == 1 ? colorFont("Yes", "red") : colorFont("No", "green") );
 					echo "</tr>";
 				}
 				
@@ -325,11 +325,15 @@
 		}
 		
 		function addTD($element){
-			echo "<td>". $element ."</td>";
+			return "<td>". $element ."</td>";
 		}
 		
 		function addTH($element){
-			echo "<th>". $element ."</th>";
+			return "<th>". $element ."</th>";
+		}
+		
+		function colorFont($element, $color){
+			return "<font color='". $color ."'>". $element ."</font>";
 		}
 		
 		?>
