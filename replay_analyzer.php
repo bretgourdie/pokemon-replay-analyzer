@@ -161,21 +161,19 @@
 						//Keep track of who put the weather up
 						//Don't functionize this :<
 						case "-weather":
-							//If it's 3, it's just upkeep
-							if(count($splitLine) < 4 && $splitLine[2] != "none"){
-								
-								if($weatherMove == 1){
-									$weatherMove = 0;
-									//weatherSetter gotten from move
-								}
-								
-								else{
-									$lastSwitchedPoke = getPlayerAndNickname($lastSwitchedPoke);
-									$currentWeatherSetter = getPokeByPlayerAndNickname($lastSwitchedPoke);
-								}
+							//If it's 4, it's just upkeep
+							//otherwise, 3 and not "none" means weather is starting
+							if(count($splitLine) == 3 && $splitLine[2] != "none"){
+								//record who set the weather on which team
 							}
 						break;
 						
+						
+						case "-status":
+							recordStatus($splitLine);
+						break;
+						
+						//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
 						}
 					}
 				}
@@ -295,9 +293,9 @@
 			$pokes[$player][$species]->nickname = $nickname;
 		}
 		
-		//////CASE DAMAGE
+		//////CASE -DAMAGE
 		function checkDamage($splitLine){
-			global $pokes, $lastMovePoke, $lastMoveUsed;
+			global $lastMovePoke, $lastMoveUsed;
 			
 			//Do we need to act on this instance?
 			if($splitLine[3] == "0 fnt"){
@@ -314,6 +312,7 @@
 				
 				//Say what happened
 				$killingMove = $lastMoveUsed;
+				$killer = $lastMovePoke;
 				
 				if(count($splitLine) > 4){
 					//Something other than a move
@@ -321,7 +320,15 @@
 					$fromSource = str_replace("[from]", "", $fromSource);
 					$killingMove = $fromSource;
 					
-					$lastMovePoke = new Poke("unknown!!!", "dunno");
+					echo "status killer was ". $poke->statusBy->species ." by ways of ". $killingMove ."<br/>";
+					
+					switch ($killingMove) {
+						case "brn":
+						case "psn":
+							$killer = $poke->statusBy;
+						break;
+					}
+					
 				}
 				
 				$lastMovePoke->kills += 1;
@@ -332,7 +339,6 @@
 		
 		//////CASE -FORMECHANGE
 		function setMega($splitLine){
-			global $pokes;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
@@ -364,6 +370,19 @@
 			$lastMovePoke = getPokeByPlayerAndNickname($playerAndNickname);
 			
 			$lastMoveUsed = $splitLine[3];
+		}
+		
+		//////CASE -STATUS
+		function recordStatus($splitLine){
+			global $lastMovePoke;
+			
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+			
+			$affectedPoke = getPokeByPlayerAndNickname($playerAndNickname);
+			
+			$affectedPoke->statusBy = $lastMovePoke;
+			
+			echo $affectedPoke->species ." was statused by ". $affectedPoke->statusBy->species ."<br/>";
 		}
 		
 		function decoupleSpeciesFromGender($segment){
@@ -411,8 +430,6 @@
 		
 		?>
 		
-		</center>
-		
 		<form name="input" action="replay_analyzer.php" method="post">
 			<table>
 				<tr>
@@ -425,5 +442,7 @@
 				</tr>
 			</table>
 		</form>
+		
+		</center>
 	</body>
 </html>
