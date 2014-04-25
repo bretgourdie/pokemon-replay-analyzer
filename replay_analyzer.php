@@ -151,6 +151,12 @@
 							handleMove($splitLine);
 						break;
 						
+						//////CHANGE MEGA
+						//When a poke changes to a mega form, change the species
+						case "-formechange":
+							setMega($splitLine);
+						break;
+						
 						//////RECORD WEATHER
 						//Keep track of who put the weather up
 						//Don't functionize this :<
@@ -322,6 +328,18 @@
 				
 				echo $poke->species ." was killed from ". $killingMove ." by ". $lastMovePoke->species ."<br/>";
 			}
+		}
+		
+		//////CASE -FORMECHANGE
+		function setMega($splitLine){
+			global $pokes;
+			
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+			
+			$poke = &getPokeByPlayerAndNickname($playerAndNickname);
+			
+			//Set species to new mega species (Mega-[species] but we parse it anyway)
+			$poke->species = $splitLine[3];
 		}
 		
 		//////CASE WIN
