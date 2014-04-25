@@ -133,10 +133,10 @@
 						break;
 						
 						
-						//////DETECT FAINTING
-						//If someone fainted, record it
-						case "faint":
-							recordFaint($splitLine);
+						//////DETECT DAMAGE
+						//If something fainted as a result of damage, record it
+						case "-damage":
+							checkDamage($splitLine);
 						break;
 						
 						//////DETECT WIN
@@ -182,6 +182,7 @@
 			}
 			
 			//Arrange "[Winner] def [Loser] (X-0)" before printing the table
+			echo "<h3><u>THE BOTTOM LINE:</u></h3>";
 			$winner = "";
 			$loser = "";
 			$numberLeft = 0;
@@ -203,7 +204,10 @@
 				}
 			}
 			
-			echo "<b>". $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)</b><br/><br/>";
+			echo "<b>". $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)</b><br/>";
+			
+			
+			echo "(". $url .")<br/><br/>";
 			
 			//Everything is parsed; make two pretty tables!
 			//Iterate through each trainer
@@ -285,18 +289,23 @@
 			$pokes[$player][$species]->nickname = $nickname;
 		}
 		
-		//////CASE FAINT
-		function recordFaint($splitLine){
+		//////CASE DAMAGE
+		function checkDamage($splitLine){
 			global $pokes;
 			
-			//Get the player and nickname
-			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
-			
-			//Get the current poke
-			$poke = &getPokeByPlayerAndNickname($playerAndNickname);
-			
-			//Assign it as fainted
-			$poke->fainted = 1;
+			//Do we need to act on this instance?
+			if($splitLine[3] == "0 fnt"){
+				//yup
+				
+				//Get the player and nickname
+				$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+				
+				//Get the current poke
+				$poke = &getPokeByPlayerAndNickname($playerAndNickname);
+				
+				//Record fainting
+				$poke->fainted = 1;
+			}
 		}
 		
 		//////CASE WIN
