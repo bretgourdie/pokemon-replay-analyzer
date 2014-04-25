@@ -291,7 +291,7 @@
 		
 		//////CASE DAMAGE
 		function checkDamage($splitLine){
-			global $pokes;
+			global $pokes, $lastMovePoke, $lastMoveUsed;
 			
 			//Do we need to act on this instance?
 			if($splitLine[3] == "0 fnt"){
@@ -305,6 +305,22 @@
 				
 				//Record fainting
 				$poke->fainted = 1;
+				
+				//Say what happened
+				$killingMove = $lastMoveUsed;
+				
+				if(count($splitLine) > 4){
+					//Something other than a move
+					$fromSource = $splitLine[4];
+					$fromSource = str_replace("[from]", "", $fromSource);
+					$killingMove = $fromSource;
+					
+					$lastMovePoke = new Poke("unknown!!!", "dunno");
+				}
+				
+				$lastMovePoke->kills += 1;
+				
+				echo $poke->species ." was killed from ". $killingMove ." by ". $lastMovePoke->species ."<br/>";
 			}
 		}
 		
@@ -323,26 +339,13 @@
 		
 		//////CASE MOVE
 		function handleMove($splitLine){
-			global $lastMoveUsed, $lastMovePoke, $weatherMove, $currentWeatherSetter;
+			global $lastMoveUsed, $lastMovePoke;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
 			$lastMovePoke = getPokeByPlayerAndNickname($playerAndNickname);
 			
-			$lastMove = $splitLine[3];
-			
-			switch ($lastMove) {
-				case "Rain Dance":
-				case "Sunny Day":
-				case "Sandstorm":
-				case "Hail":
-					$currentWeatherSetter = $lastMovePoke;
-					$weatherMove = 1;
-				break;
-				default:
-					$lastMoveUsed = $lastMove;
-				break;
-			}
+			$lastMoveUsed = $splitLine[3];
 		}
 		
 		function decoupleSpeciesFromGender($segment){
