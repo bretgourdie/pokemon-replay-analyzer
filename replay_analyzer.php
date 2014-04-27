@@ -317,23 +317,34 @@
 				if(count($splitLine) > 4){
 					//Something other than a move
 					$fromSource = $splitLine[4];
-					$fromSource = str_replace("[from]", "", $fromSource);
+					$fromSource = str_replace("[from] ", "", $fromSource);
 					$killingMove = $fromSource;
 					
-					echo "status killer was ". $poke->statusBy->species ." by ways of ". $killingMove ."<br/>";
-					
-					switch ($killingMove) {
-						case "brn":
-						case "psn":
-							$killer = $poke->statusBy;
-						break;
+					/*
+					if(count($splitLine) > 5){
+						//We have a "[of]" for attribution of the kill!  Hooray!
+						//!!!!!!!Recoil is attributed to the opposing pokemon :/
+						$killerPlayerAndNickname = getPlayerAndNickname($splitLine[5]);
+						$killer = &getPokeByPlayerAndNickname($killerPlayerAndNickname);
 					}
+					
+					else{
+					
+					*/
+						//No "[of]", requires variable state to determine
+						switch ($killingMove) {
+							case "brn":
+							case "psn":
+								$killer = $poke->statusBy;
+							break;
+						}
+					//}
 					
 				}
 				
-				$lastMovePoke->kills += 1;
+				$killer->kills += 1;
 				
-				echo $poke->species ." was killed from ". $killingMove ." by ". $lastMovePoke->species ."<br/>";
+				echo $poke->species ." was killed from ". $killingMove ." by ". $killer->species ."<br/>";
 			}
 		}
 		
