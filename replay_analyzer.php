@@ -336,25 +336,34 @@
 					$fromSource = str_replace("[from] ", "", $fromSource);
 					$killingMove = $fromSource;
 					
-					/*
-					if(count($splitLine) > 5){
+					//Recoil is attributed to the opposing poke.  Yeah, I know.
+					//If it's recoil, it's a self-kill, so drop down
+					if(count($splitLine) > 5 && $killingMove != "recoil"){
 						//We have a "[of]" for attribution of the kill!  Hooray!
-						//!!!!!!!Recoil is attributed to the opposing pokemon :/
-						$killerPlayerAndNickname = getPlayerAndNickname($splitLine[5]);
+						$ofSource = $splitLine[5];
+						$ofSource = str_replace("[of] ", "", $ofSource);
+						$killerPlayerAndNickname = getPlayerAndNickname($ofSource);
 						$killer = &getPokeByPlayerAndNickname($killerPlayerAndNickname);
+						
+						echo "[of] detected; ";
 					}
 					
 					else{
-					
-					*/
-					//No "[of]", requires variable state to determine
-					switch ($killingMove) {
-						case "brn":
-						case "psn":
-							$killer = $poke->statusBy;
-						break;
+						//No "[of]", requires variable state to determine
+						//Otherwise, it's probably a self-death
+						switch ($killingMove) {
+							case "brn":
+							case "psn":
+								$killer = $poke->statusBy;
+							break;
+							
+							default:
+								$killer = $poke;
+							break;
+						}
+						
+						echo "[from] detected; ";
 					}
-					//}
 					
 				}
 				
