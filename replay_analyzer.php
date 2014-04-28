@@ -55,6 +55,9 @@
 		$lastSwitchPoke = "";
 		$currentWeatherSetter = "";
 		$weatherMove = 0;
+		
+		//Flags to print things once if there's something to review
+		$seenReplace = 0;
 				
 		//Check if POST variable was passed
 		if(isset($_POST["page"])) {
@@ -126,10 +129,21 @@
 						//	the pokemon by nickname, not species.
 						//	(?????????????????????????????????? why.)
 						case "switch":
+						//////REPLACE POKE
+						//Only seen with Zoroark (so far)
+						//"Replace" is functionally the same as "switch",
+						//	but we'll notify the user just in case things go wrong.
+						case "replace":
 							grabNickname($splitLine);
 							
 							//For weather
 							$lastSwitchedPoke = $splitLine[2];
+							
+							if($splitLine[1] == "replace" && $seenReplace == 0){
+								echo "A Pokemon changed appearance. Kills are undetectable before this occurs."
+									." Please manually adjust the kill count.<br/>";
+								$seenReplace = 1;
+							}
 						break;
 						
 						
@@ -151,7 +165,7 @@
 							handleMove($splitLine);
 						break;
 						
-						//////CHANGE MEGA
+						//////CHANGE TO MEGA
 						//When a poke changes to a mega form, change the species
 						case "-formechange":
 							setMega($splitLine);
@@ -168,7 +182,9 @@
 							}
 						break;
 						
-						
+						//////RECORD STATUS EFFECT
+						//If someone affects someone else with a status,
+						//	record it just in case
 						case "-status":
 							recordStatus($splitLine);
 						break;
@@ -344,7 +360,7 @@
 				
 				$killer->kills += 1;
 				
-				echo $poke->species ." was killed from ". $killingMove ." by ". $killer->species ."<br/>";
+				echo $killer->species ." killed ". $poke->species ." by ". $killingMove ."<br/>";
 			}
 		}
 		
@@ -393,7 +409,7 @@
 			
 			$affectedPoke->statusBy = $lastMovePoke;
 			
-			echo $affectedPoke->species ." was statused by ". $affectedPoke->statusBy->species ."<br/>";
+			echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ."<br/>";
 		}
 		
 		function decoupleSpeciesFromGender($segment){
