@@ -347,20 +347,31 @@
 					else{
 					
 					*/
-						//No "[of]", requires variable state to determine
-						switch ($killingMove) {
-							case "brn":
-							case "psn":
-								$killer = $poke->statusBy;
-							break;
-						}
+					//No "[of]", requires variable state to determine
+					switch ($killingMove) {
+						case "brn":
+						case "psn":
+							$killer = $poke->statusBy;
+						break;
+					}
 					//}
 					
 				}
 				
-				$killer->kills += 1;
+				//Get the player of the fainted poke
+				$player = $playerAndNickname[0];
 				
-				echo $killer->species ." killed ". $poke->species ." by ". $killingMove ."<br/>";
+				//If the killer is on the same team, don't count that kill
+				$killerOnSameTeam = checkIfKillerOnSameTeam($killer, $player);
+				
+				if($killerOnSameTeam == 0){
+					$killer->kills += 1;
+					echo $killer->species ." killed ". $poke->species ." by ". $killingMove ."<br/>";
+				}
+				
+				else{
+					echo $killer->species ." killed itself by ". $killingMove ."<br/>";
+				}
 			}
 		}
 		
@@ -410,6 +421,18 @@
 			$affectedPoke->statusBy = $lastMovePoke;
 			
 			echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ."<br/>";
+		}
+		
+		function checkIfKillerOnSameTeam($killer, $faintedTeam){
+			global $pokes;
+			
+			foreach($pokes[$faintedTeam] as $curPoke){
+				if($curPoke == $killer){
+					return 1;
+				}
+			}
+			
+			return 0;
 		}
 		
 		function decoupleSpeciesFromGender($segment){
