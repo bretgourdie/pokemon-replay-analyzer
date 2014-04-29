@@ -51,6 +51,7 @@
 		//Other variables associated with damaging moves
 		$lastMoveUsed = "";
 		$lastMovePoke = "";
+		$sideStarted = array();
 		//For weather
 		$lastSwitchPoke = "";
 		$currentWeatherSetter = "";
@@ -112,6 +113,7 @@
 						case "player":
 							if(count($splitLine) > 3){
 								addPlayer($splitLine);
+								addSide($splitLine);
 							}
 						break;
 						
@@ -187,6 +189,13 @@
 						//	record it just in case
 						case "-status":
 							recordStatus($splitLine);
+						break;
+						
+						//////MARK SIDESTART
+						//Stealth Rocks and such are added to an array here
+						//	which we use to look up later
+						case "-sidestart":
+							addSidestart($splitLine);
 						break;
 						
 						//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
@@ -357,6 +366,13 @@
 								$killer = $poke->statusBy;
 							break;
 							
+							/*
+							case "sandstorm":
+							case "hail":
+								$killer = 
+							break;
+							*/
+							
 							default:
 								$killer = $poke;
 							break;
@@ -379,7 +395,7 @@
 				}
 				
 				else{
-					echo $killer->species ." killed itself by ". $killingMove ."<br/>";
+					echo $killer->species ." killed itself or a friend by ". $killingMove ."<br/>";
 				}
 			}
 		}
@@ -432,6 +448,41 @@
 			echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ."<br/>";
 		}
 		
+		//////CASE -SIDESTART
+		function addSidestart($splitLine){
+			global $sideStarted, $lastMovePoke;
+			
+			$player = decouplePlayerFromName($splitLine[2]);
+			
+			$started = decoupleStartedFromType($splitLine[3]);
+			
+			$sideStarted[$player][$started] = $lastMovePoke;
+			
+			echo $sideStarted[$player][$started]->species ." just started ". $started ."<br/>";
+		}
+		
+		function decoupleStartedFromType($segment){
+			$typeAndStarted = explode(": ", $segment);
+			
+			$started = $typeAndStarted[1];
+			
+			return $started;
+		}
+		
+		function decouplePlayerFromName($segment){
+			$playerAndName = explode(": ", $segment);
+			
+			$player = $playerAndName[0];
+			
+			return $player;
+		}
+		
+		function getPlayerAndName($segment){
+			$playerAndName = explode(": ", $segment);
+			
+			return $playerAndName;
+		}
+		
 		function checkIfKillerOnSameTeam($killer, $faintedTeam){
 			global $pokes;
 			
@@ -473,6 +524,16 @@
 					return $curPoke;
 				}
 			}
+		}
+		
+		function addSide($splitLine){
+			global $trainers, $sideStarted;
+
+			//Grab the player number
+			$player = $splitLine[2];
+			//Add a new sidestart array for the trainer,
+			//	indexed by trainer
+			$sideStarted[$player] = array();
 		}
 		
 		function addTD($element){
