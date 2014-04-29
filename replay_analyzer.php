@@ -60,10 +60,11 @@
 		//Flags to print things once if there's something to review
 		$seenReplace = 0;
 				
-		//Check if POST variable was passed
-		if(isset($_POST["page"])) {
+		//Check if POST variables were passed
+		if(isset($_POST["page"]) && isset($_POST["show"])) {
 		
 			$url = $_POST["page"];
+			$show = $_POST["show"];
 			
 			$source = file_get_contents($url);
 			
@@ -142,8 +143,8 @@
 							$lastSwitchedPoke = $splitLine[2];
 							
 							if($splitLine[1] == "replace" && $seenReplace == 0){
-								echo "A Pokemon changed appearance. Kills are undetectable before this occurs."
-									." Please manually adjust the kill count.<br/>";
+								echo "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
+									."Please manually adjust the kill count.<br/>";
 								$seenReplace = 1;
 							}
 						break;
@@ -320,7 +321,7 @@
 		
 		//////CASE -DAMAGE
 		function checkDamage($splitLine){
-			global $lastMovePoke, $lastMoveUsed;
+			global $lastMovePoke, $lastMoveUsed, $show;
 			
 			//Do we need to act on this instance?
 			if($splitLine[3] == "0 fnt"){
@@ -354,7 +355,9 @@
 						$killerPlayerAndNickname = getPlayerAndNickname($ofSource);
 						$killer = &getPokeByPlayerAndNickname($killerPlayerAndNickname);
 						
-						echo "[of] detected; ";
+						if($show == 1){
+							echo "[of] detected; ";
+						}
 					}
 					
 					else{
@@ -378,7 +381,9 @@
 							break;
 						}
 						
-						echo "[from] detected; ";
+						if($show == 1){
+							echo "[from] detected; ";
+						}
 					}
 					
 				}
@@ -391,11 +396,15 @@
 				
 				if($killerOnSameTeam == 0){
 					$killer->kills += 1;
-					echo $killer->species ." killed ". $poke->species ." by ". $killingMove ."<br/>";
+					if($show == 1){
+						echo $killer->species ." killed ". $poke->species ." by ". $killingMove ."<br/>";
+					}
 				}
 				
 				else{
-					echo $killer->species ." killed itself or a friend by ". $killingMove ."<br/>";
+					if($show == 1){
+						echo $killer->species ." killed itself or a friend by ". $killingMove ."<br/>";
+					}
 				}
 			}
 		}
@@ -445,7 +454,9 @@
 			
 			$affectedPoke->statusBy = $lastMovePoke;
 			
-			echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ."<br/>";
+			if($show == 1){
+				echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ."<br/>";
+			}
 		}
 		
 		//////CASE -SIDESTART
@@ -458,7 +469,9 @@
 			
 			$sideStarted[$player][$started] = $lastMovePoke;
 			
-			echo $sideStarted[$player][$started]->species ." just started ". $started ."<br/>";
+			if($show == 1){
+				echo $sideStarted[$player][$started]->species ." just started ". $started ."<br/>";
+			}
 		}
 		
 		function decoupleStartedFromType($segment){
@@ -557,8 +570,29 @@
 					<td><input type="text" name="page" size="50" /></td>
 				</tr>
 				<tr>
-					<td colspan="2" align="center" ><input type="submit" value="Analyze!" />
+					<td colspan="2" align="center" >
+						<input type="submit" value="Analyze!" />
 					</td>
+				</tr>
+				
+				<tr>
+					<td><input type="radio" name="show" value="1" <?php 
+						if(ISSET($_POST["show"])){
+							echo $show ? "checked" : "";
+						}
+						
+						else{
+							//Default to checked if first time here
+							echo "checked";
+						}
+						
+					?> /> Detailed Results</td>
+					<td align="right"><input type="radio" name="show" value="0" <?php 
+						if(ISSET($_POST["show"])){
+							echo $show ? "" : "checked"; 
+						}
+						
+					?> /> Bottom Line Only</td>
 				</tr>
 			</table>
 		</form>
