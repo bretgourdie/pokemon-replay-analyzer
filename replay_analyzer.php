@@ -36,6 +36,8 @@
 			public $nickname = "null";
 			//Used to maintain state in case of a toxic/burn kill
 			public $statusBy = "null";
+			//Used for other damaging debuffs
+			public $startBy = array();
 			public $kills = 0;
 			public $fainted = 0;
 			
@@ -66,209 +68,225 @@
 			$url = $_POST["page"];
 			$show = $_POST["show"];
 			
-			$source = file_get_contents($url);
+			//Check if url is a pokemon showdown url
+			$pos = strpos($url, "http://replay.pokemonshowdown.com/");
 			
-			$sourceByLines = explode("\n", $source);
+			//Also check if URL is not 404
+			$response = "404";
+			if($pos === 0){
+				$response = get_http_response_code($url);
+			}
 			
-			for($ii = 0, $insideLog = false, $atTheEnd = false; $ii < $sourceByLines; $ii++){
+			if($pos === 0 && $response != "404"){
+				$source = file_get_contents($url);
+			
+				$sourceByLines = explode("\n", $source);
 				
-				//check if we are at the log
-				if(strpos($sourceByLines[$ii], 'class="log"') !== false){
-					//echo "found the start of the log<br />";
+				for($ii = 0, $insideLog = false, $atTheEnd = false; $ii < $sourceByLines; $ii++){
 					
-					$insideLog = true;
-					$sourceByLines[$ii] = str_replace('<script type="text/plain" class="log">', 
-						"", 
-						$sourceByLines[$ii]
-					);
-				}
-				
-				//found the end of the log; snip off the ending </script>
-				else if($insideLog && strpos($sourceByLines[$ii], "</script>") !== false){
-					//echo "found the end of the log<br />";
-					$atTheEnd = true;
-					$sourceByLines[$ii] = str_replace('</script>', 
-						"", 
-						$sourceByLines[$ii]
-					);
-				}
-				
-				
-				//state logic here
-				if($insideLog){
-					//inside the log
-					$currentLine = $sourceByLines[$ii];
+					//check if we are at the log
+					if(strpos($sourceByLines[$ii], 'class="log"') !== false){
+						//echo "found the start of the log<br />";
+						
+						$insideLog = true;
+						$sourceByLines[$ii] = str_replace('<script type="text/plain" class="log">', 
+							"", 
+							$sourceByLines[$ii]
+						);
+					}
 					
-					//Split currentLine by pipeline
-					$splitLine = explode("|", $currentLine);
+					//found the end of the log; snip off the ending </script>
+					else if($insideLog && strpos($sourceByLines[$ii], "</script>") !== false){
+						//echo "found the end of the log<br />";
+						$atTheEnd = true;
+						$sourceByLines[$ii] = str_replace('</script>', 
+							"", 
+							$sourceByLines[$ii]
+						);
+					}
 					
-					//Skip any "blank" lines
-					if(count($splitLine) > 1) {
 					
-						switch ($splitLine[1]){
+					//state logic here
+					if($insideLog){
+						//inside the log
+						$currentLine = $sourceByLines[$ii];
 						
-						//////ADD TRAINER
-						//If there's a new trainer, add them to the array
-						//	but make sure that it's not the weird "player" command
-						//	at the bottom of the log. (what does it mean?????????)
-						case "player":
-							if(count($splitLine) > 3){
-								addPlayer($splitLine);
-								addSide($splitLine);
-							}
-						break;
+						//Split currentLine by pipeline
+						$splitLine = explode("|", $currentLine);
 						
-						//////ADD POKE
-						//If there's a new pokemon, add it to the array
-						//	indexed by the trainer
-						case "poke":
-							addPoke($splitLine);
-						break;
+						//Skip any "blank" lines
+						if(count($splitLine) > 1) {
 						
-						
-						//////DETECT NICKNAME
-						//If there's a switch-in, grab the nickname.
-						//We need this because moves are performed by
-						//	the pokemon by nickname, not species.
-						//	(?????????????????????????????????? why.)
-						case "switch":
-						//////REPLACE POKE
-						//Only seen with Zoroark (so far)
-						//"Replace" is functionally the same as "switch",
-						//	but we'll notify the user just in case things go wrong.
-						case "replace":
-							grabNickname($splitLine);
+							switch ($splitLine[1]){
 							
-							//For weather
-							$lastSwitchedPoke = $splitLine[2];
+							//////ADD TRAINER
+							//If there's a new trainer, add them to the array
+							//	but make sure that it's not the weird "player" command
+							//	at the bottom of the log. (what does it mean?????????)
+							case "player":
+								if(count($splitLine) > 3){
+									addPlayer($splitLine);
+									addSide($splitLine);
+								}
+							break;
 							
-							if($splitLine[1] == "replace" && $seenReplace == 0){
-								echo "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
-									."Please manually adjust the kill count.<br/>";
-								$seenReplace = 1;
+							//////ADD POKE
+							//If there's a new pokemon, add it to the array
+							//	indexed by the trainer
+							case "poke":
+								addPoke($splitLine);
+							break;
+							
+							
+							//////DETECT NICKNAME
+							//If there's a switch-in, grab the nickname.
+							//We need this because moves are performed by
+							//	the pokemon by nickname, not species.
+							//	(?????????????????????????????????? why.)
+							case "switch":
+							//////REPLACE POKE
+							//Only seen with Zoroark (so far)
+							//"Replace" is functionally the same as "switch",
+							//	but we'll notify the user just in case things go wrong.
+							case "replace":
+								grabNickname($splitLine);
+								
+								//For weather
+								$lastSwitchedPoke = $splitLine[2];
+								
+								if($splitLine[1] == "replace" && $seenReplace == 0){
+									echo "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
+										."Please manually adjust the kill count.<br/>";
+									$seenReplace = 1;
+								}
+							break;
+							
+							
+							//////DETECT DAMAGE
+							//If something fainted as a result of damage, record it
+							case "-damage":
+								checkDamage($splitLine);
+							break;
+							
+							//////DETECT WIN
+							//Someone won; record it
+							case "win":
+								recordWin($splitLine);
+							break;
+							
+							//////RECORD MOVE
+							//Keep track of the last move used in case someone dies
+							case "move":
+								handleMove($splitLine);
+							break;
+							
+							//////CHANGE TO MEGA
+							//When a poke changes to a mega form, change the species
+							case "-formechange":
+								setMega($splitLine);
+							break;
+							
+							//////RECORD WEATHER
+							//Keep track of who put the weather up
+							//Don't functionize this :<
+							case "-weather":
+								//If it's 4, it's just upkeep
+								//otherwise, 3 and not "none" means weather is starting
+								if(count($splitLine) == 3 && $splitLine[2] != "none"){
+									//record who set the weather on which team
+									markWeather($splitLine);
+								}
+							break;
+							
+							//////RECORD STATUS EFFECT
+							//If someone affects someone else with a status,
+							//	record it just in case
+							case "-status":
+								recordStatus($splitLine);
+							break;
+							
+							//////MARK SIDESTART
+							//Stealth Rocks and such are added to an array here
+							//	which we use to look up later
+							case "-sidestart":
+								addSidestart($splitLine);
+							break;
+							
+							//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
 							}
-						break;
-						
-						
-						//////DETECT DAMAGE
-						//If something fainted as a result of damage, record it
-						case "-damage":
-							checkDamage($splitLine);
-						break;
-						
-						//////DETECT WIN
-						//Someone won; record it
-						case "win":
-							recordWin($splitLine);
-						break;
-						
-						//////RECORD MOVE
-						//Keep track of the last move used in case someone dies
-						case "move":
-							handleMove($splitLine);
-						break;
-						
-						//////CHANGE TO MEGA
-						//When a poke changes to a mega form, change the species
-						case "-formechange":
-							setMega($splitLine);
-						break;
-						
-						//////RECORD WEATHER
-						//Keep track of who put the weather up
-						//Don't functionize this :<
-						case "-weather":
-							//If it's 4, it's just upkeep
-							//otherwise, 3 and not "none" means weather is starting
-							if(count($splitLine) == 3 && $splitLine[2] != "none"){
-								//record who set the weather on which team
-							}
-						break;
-						
-						//////RECORD STATUS EFFECT
-						//If someone affects someone else with a status,
-						//	record it just in case
-						case "-status":
-							recordStatus($splitLine);
-						break;
-						
-						//////MARK SIDESTART
-						//Stealth Rocks and such are added to an array here
-						//	which we use to look up later
-						case "-sidestart":
-							addSidestart($splitLine);
-						break;
-						
-						//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
 						}
+					}
+					
+					
+					if($atTheEnd){
+						$insideLog = false;
+						break;
 					}
 				}
 				
-				
-				if($atTheEnd){
-					$insideLog = false;
-					break;
-				}
-			}
-			
-			//Arrange "[Winner] def [Loser] (X-0)" before printing the table
-			echo "<h3><u>THE BOTTOM LINE:</u></h3>";
-			$winner = "";
-			$loser = "";
-			$numberLeft = 0;
-			//Detemine the winner and the loser
-			foreach($trainers as $trainer){
-				if($trainer->win == 1){
-					$winner = $trainer;
-					
-					//Determine how many pokemon the winner had left
-					foreach($pokes[$winner->p] as $species => $poke){
-						if($poke->fainted == 0){
-							$numberLeft += 1;
+				//Arrange "[Winner] def [Loser] (X-0)" before printing the table
+				echo "<h3><u>THE BOTTOM LINE:</u></h3>";
+				$winner = "";
+				$loser = "";
+				$numberLeft = 0;
+				//Detemine the winner and the loser
+				foreach($trainers as $trainer){
+					if($trainer->win == 1){
+						$winner = $trainer;
+						
+						//Determine how many pokemon the winner had left
+						foreach($pokes[$winner->p] as $species => $poke){
+							if($poke->fainted == 0){
+								$numberLeft += 1;
+							}
 						}
+					}
+					
+					else{
+						$loser = $trainer;
 					}
 				}
 				
-				else{
-					$loser = $trainer;
-				}
-			}
-			
-			echo "<b>". $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)</b><br/>";
-			
-			
-			echo "(". $url .")<br/><br/>";
-			
-			//Everything is parsed; make two pretty tables!
-			//Iterate through each trainer
-			echo "Results:<br />";
-			foreach($trainers as $trainer){
+				echo "<b>". $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)</b><br/>";
 				
-				echo "<b>". $trainer->name ."</b>";
 				
-				echo "<br/>";
+				echo "(". $url .")<br/><br/>";
 				
-				//Start the table
-				echo "<table border=1>";
-				
-				echo "<tr>";
-					echo addTH("Pokemon");
-					echo addTH("Kills");
-					echo addTH("Fainted");
-				echo "</tr>";
-				
-				//Iterate through the current trainer's pokemon
-				foreach($pokes[$trainer->p] as $species => $poke){
+				//Everything is parsed; make two pretty tables!
+				//Iterate through each trainer
+				echo "Results:<br />";
+				foreach($trainers as $trainer){
+					
+					echo "<b>". $trainer->name ."</b>";
+					
+					echo "<br/>";
+					
+					//Start the table
+					echo "<table border=1>";
+					
 					echo "<tr>";
-						echo addTD($poke->species);
-						echo addTD($poke->kills);
-						echo addTD( $poke->fainted == 1 ? colorFont("Yes", "red") : colorFont("No", "green") );
+						echo addTH("Pokemon");
+						echo addTH("Kills");
+						echo addTH("Fainted");
 					echo "</tr>";
+					
+					//Iterate through the current trainer's pokemon
+					foreach($pokes[$trainer->p] as $species => $poke){
+						echo "<tr>";
+							echo addTD($poke->species);
+							echo addTD($poke->kills);
+							echo addTD( $poke->fainted == 1 ? colorFont("Yes", "red") : colorFont("No", "green") );
+						echo "</tr>";
+					}
+					
+					echo "</table>";
+					
+					echo "<br/>";
 				}
-				
-				echo "</table>";
-				
-				echo "<br/>";
+			}
+			
+			else{
+				echo "Please enter a valid Pokemon Showdown URL and make sure it exists.<br/>";
 			}
 		}
 		
@@ -474,6 +492,11 @@
 			}
 		}
 		
+		//////CASE -WEATHER
+		function markWeather($splitLine){
+		
+		}
+		
 		function decoupleStartedFromType($segment){
 			$typeAndStarted = explode(": ", $segment);
 			
@@ -547,6 +570,11 @@
 			//Add a new sidestart array for the trainer,
 			//	indexed by trainer
 			$sideStarted[$player] = array();
+		}
+		
+		function get_http_response_code($url) {
+			$headers = get_headers($url);
+			return substr($headers[0], 9, 3);
 		}
 		
 		function addTD($element){
