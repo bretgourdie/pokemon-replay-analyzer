@@ -144,6 +144,8 @@
 							//	the pokemon by nickname, not species.
 							//	(?????????????????????????????????? why.)
 							case "switch":
+							//Also check for "dragging in" a poke
+							case "drag":
 							//////REPLACE POKE
 							//Only seen with Zoroark (so far)
 							//"Replace" is functionally the same as "switch",
@@ -230,7 +232,10 @@
 				}
 				
 				//Arrange "[Winner] def [Loser] (X-0)" before printing the table
-				echo "<h3><u>THE BOTTOM LINE:</u></h3>";
+				if($show == 1){
+					echo "<h3><u>THE BOTTOM LINE:</u></h3>";
+				}
+				
 				$winner = "";
 				$loser = "";
 				$numberLeft = 0;
@@ -579,6 +584,8 @@
 					return $curPoke;
 				}
 			}
+			
+			return new Poke("unknown", "oh no");
 		}
 		
 		function addSide($splitLine){
