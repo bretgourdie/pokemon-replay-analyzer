@@ -55,7 +55,7 @@
 		$lastMovePoke = "";
 		$sideStarted = array();
 		//For weather
-		$lastSwitchPoke = "";
+		$lastSwitchedPoke = "";
 		$currentWeatherSetter = "";
 		$weatherMove = 0;
 		
@@ -149,10 +149,11 @@
 							//"Replace" is functionally the same as "switch",
 							//	but we'll notify the user just in case things go wrong.
 							case "replace":
-								grabNickname($splitLine);
+								grabNickname($splitLine);								
 								
 								//For weather
-								$lastSwitchedPoke = $splitLine[2];
+								$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
 								
 								if($splitLine[1] == "replace" && $seenReplace == 0){
 									echo "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
@@ -184,6 +185,10 @@
 							//When a poke changes to a mega form, change the species
 							case "-formechange":
 								setMega($splitLine);
+								
+								//For weather
+								$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
 							break;
 							
 							//////RECORD WEATHER
@@ -339,7 +344,7 @@
 		
 		//////CASE -DAMAGE
 		function checkDamage($splitLine){
-			global $lastMovePoke, $lastMoveUsed, $show;
+			global $lastMovePoke, $lastMoveUsed, $show, $currentWeatherSetter;
 			
 			//Do we need to act on this instance?
 			if($splitLine[3] == "0 fnt"){
@@ -387,12 +392,12 @@
 								$killer = $poke->statusBy;
 							break;
 							
-							/*
+							
 							case "sandstorm":
 							case "hail":
-								$killer = 
+								$killer = $currentWeatherSetter;
 							break;
-							*/
+							
 							
 							default:
 								$killer = $poke;
@@ -494,7 +499,23 @@
 		
 		//////CASE -WEATHER
 		function markWeather($splitLine){
-		
+			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show;
+			
+			$weather = $splitLine[2];
+			
+			//Did weather come about from a move?
+			if($lastMovePoke == $weather){
+				$currentWeatherSetter = $lastMovePoke;
+			}
+			
+			//Else, it must have come from a switch
+			else{
+				$currentWeatherSetter = $lastSwitchedPoke;
+			}
+			
+			if($show == 1){
+				echo $currentWeatherSetter->species ." set the weather to ". $weather ."<br/>";
+			}
 		}
 		
 		function decoupleStartedFromType($segment){
