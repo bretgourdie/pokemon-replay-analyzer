@@ -97,6 +97,8 @@
 							"", 
 							$sourceByLines[$ii]
 						);
+						
+						echo "<div class='container'><div class='jumbotron'>";
 					}
 					
 					//found the end of the log; snip off the ending </script>
@@ -297,6 +299,8 @@
 					
 					echo "<br/>";
 				}
+				
+				echo "</div></div>";
 			}
 			
 			else{
@@ -589,6 +593,8 @@
 				}
 			}
 			
+			//Should never happen
+			//(ha ha ha.)
 			return new Poke("unknown", "oh no");
 		}
 		
@@ -621,44 +627,49 @@
 		
 		?>
 		
-		<form name="input" action="replay_analyzer.php" method="post">
-			<table>
-				<tr>
-					<td>URL of replay:</td>
-					<td><input type="text" name="page" size="50" value="<?php
-						if(ISSET($_POST["page"])){
-							echo $_POST["page"];
-						}
-					?>" /></td>
-				</tr>
-				<tr>
-					<td colspan="2" align="center" >
-						<input type="submit" value="Analyze!" />
-					</td>
-				</tr>
-				
-				<tr>
-					<td><label>
-						<input type="radio" name="show" value="1" <?php 
-						if(ISSET($_POST["show"])){
-							echo $show ? "checked" : "";
-						}
-						
-						else{
-							//Default to checked if first time here
-							echo "checked";
-						}
-						
-					?> /> Detailed Results</label></td>
-					<td align="right"><label><input type="radio" name="show" value="0" <?php 
-						if(ISSET($_POST["show"])){
-							echo $show ? "" : "checked"; 
-						}
-						
-					?> /> Bottom Line Only</label></td>
-				</tr>
-			</table>
-		</form>
+
+		<div class="jumbotron">
+			<h2>Enter a Pokemon Showdown Replay URL:</h2>
+			<form name="input" action="replay_analyzer.php" method="post">
+				<table>
+					<tr>
+						<td>URL of replay:</td>
+						<td><input type="text" name="page" size="50" value="<?php
+							if(ISSET($_POST["page"])){
+								echo $_POST["page"];
+							}
+						?>" /></td>
+					</tr>
+					<tr>
+						<td colspan="2" align="center" >
+							<input type="submit" class="btn btn-lg btn-primary" value="Analyze!" />
+						</td>
+					</tr>
+					
+					<tr>
+						<td><label>
+							<input type="radio" name="show" value="1" <?php 
+							if(ISSET($_POST["show"])){
+								echo $show ? "checked" : "";
+							}
+							
+							else{
+								//Default to checked if first time here
+								echo "checked";
+							}
+							
+						?> /> Detailed Results</label></td>
+						<td align="right"><label><input type="radio" name="show" value="0" <?php 
+							if(ISSET($_POST["show"])){
+								echo $show ? "" : "checked"; 
+							}
+							
+						?> /> Bottom Line Only</label></td>
+					</tr>
+				</table>
+			</form>
+		</div>
+
 		
 		</center>
 	</body>
