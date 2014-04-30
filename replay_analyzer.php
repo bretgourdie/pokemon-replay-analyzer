@@ -5,7 +5,11 @@
 		<title>
 			Pokemon Showdown Replay Analyzer
 		</title>
+		
 		<meta http-equiv='Content-type' content='text/html;charset=UTF-8'>
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="css/bootstrap.css" rel="stylesheet">
 		
 	</head>
 	
@@ -621,7 +625,11 @@
 			<table>
 				<tr>
 					<td>URL of replay:</td>
-					<td><input type="text" name="page" size="50" /></td>
+					<td><input type="text" name="page" size="50" value="<?php
+						if(ISSET($_POST["page"])){
+							echo $_POST["page"];
+						}
+					?>" /></td>
 				</tr>
 				<tr>
 					<td colspan="2" align="center" >
@@ -630,7 +638,8 @@
 				</tr>
 				
 				<tr>
-					<td><input type="radio" name="show" value="1" <?php 
+					<td><label>
+						<input type="radio" name="show" value="1" <?php 
 						if(ISSET($_POST["show"])){
 							echo $show ? "checked" : "";
 						}
@@ -640,13 +649,13 @@
 							echo "checked";
 						}
 						
-					?> /> Detailed Results</td>
-					<td align="right"><input type="radio" name="show" value="0" <?php 
+					?> /> Detailed Results</label></td>
+					<td align="right"><label><input type="radio" name="show" value="0" <?php 
 						if(ISSET($_POST["show"])){
 							echo $show ? "" : "checked"; 
 						}
 						
-					?> /> Bottom Line Only</td>
+					?> /> Bottom Line Only</label></td>
 				</tr>
 			</table>
 		</form>
