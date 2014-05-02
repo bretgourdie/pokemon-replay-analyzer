@@ -485,10 +485,24 @@
 			
 			$affectedPoke = getPokeByPlayerAndNickname($playerAndNickname);
 			
-			$affectedPoke->statusBy = $lastMovePoke;
+			if(count($splitLine) > 4){
+				//Status self-inflicted from an item probably
+				$affectedPoke->statusBy = $affectedPoke;
+			}
+			
+			else{
+				//Status from the last move used
+				$affectedPoke->statusBy = $lastMovePoke;
+			}
 			
 			if($show == 1){
-				echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ." with ". $splitLine[3] ."<br/>";
+				if(count($splitLine) > 4){
+					echo $affectedPoke->species ." statused itself with ". $splitLine[3] ."<br/>";
+				}
+				
+				else{
+					echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ." with ". $splitLine[3] ."<br/>";
+				}
 			}
 		}
 		
