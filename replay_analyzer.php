@@ -479,7 +479,7 @@
 		
 		//////CASE -STATUS
 		function recordStatus($splitLine){
-			global $lastMovePoke;
+			global $lastMovePoke, $show;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
@@ -494,7 +494,7 @@
 		
 		//////CASE -SIDESTART
 		function addSidestart($splitLine){
-			global $sideStarted, $lastMovePoke;
+			global $sideStarted, $lastMovePoke, $show;
 			
 			$player = decouplePlayerFromName($splitLine[2]);
 			
