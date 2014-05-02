@@ -488,7 +488,7 @@
 			$affectedPoke->statusBy = $lastMovePoke;
 			
 			if($show == 1){
-				echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ." with ". splitLine[3] ."<br/>";
+				echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ." with ". $splitLine[3] ."<br/>";
 			}
 		}
 		
