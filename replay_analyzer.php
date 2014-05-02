@@ -81,6 +81,8 @@
 				$response = get_http_response_code($url);
 			}
 			
+			echo "<div class='container'><div class='jumbotron'>";
+			
 			if($pos === 0 && $response != "404"){
 				$source = file_get_contents($url);
 			
@@ -98,7 +100,6 @@
 							$sourceByLines[$ii]
 						);
 						
-						echo "<div class='container'><div class='jumbotron'>";
 					}
 					
 					//found the end of the log; snip off the ending </script>
@@ -270,7 +271,10 @@
 				
 				//Everything is parsed; make two pretty tables!
 				//Iterate through each trainer
-				echo "Results:<br />";
+				if($show == 1){
+					echo "Results:<br />";
+				}
+				
 				foreach($trainers as $trainer){
 					
 					echo "<b>". $trainer->name ."</b>";
@@ -300,12 +304,13 @@
 					echo "<br/>";
 				}
 				
-				echo "</div></div>";
 			}
 			
 			else{
 				echo "Please enter a valid Pokemon Showdown URL and make sure it exists.<br/>";
 			}
+			
+			echo "</div></div>";
 		}
 		
 		//////CASE PLAYER
