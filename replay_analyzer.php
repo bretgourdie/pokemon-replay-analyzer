@@ -444,7 +444,17 @@
 								}
 								
 								else{
-									$killer = $poke;
+									//Check starts
+									
+									$startResult = $poke->startBy[$fromSource];
+									
+									if(!is_null($startResult)){
+										$killer = $startResult;
+									}
+									
+									else{
+										$killer = $poke;
+									}
 								}
 							break;
 						}
@@ -472,7 +482,13 @@
 				
 				else{
 					if($show == 1){
-						echo $killer->species ." killed itself or a friend by ". $killingMove ."<br/>";
+						if($killer == $poke){
+							echo $killer->species ." killed itself by ". $killingMove ."<br/>";
+						}
+						
+						else{
+							echo $killer->species ." killed ". $poke->species ." (same-team) by ". $killingMove ."<br/>";
+						}
 					}
 				}
 			}
