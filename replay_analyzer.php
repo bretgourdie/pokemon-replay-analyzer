@@ -461,6 +461,7 @@
 		
 		//////CASE -FORMECHANGE
 		function setMega($splitLine){
+			global $show;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
@@ -468,6 +469,10 @@
 			
 			//Set species to new mega species (Mega-[species] but we parse it anyway)
 			$poke->species = $splitLine[3];
+			
+			if($show == 1){
+				echo $poke->nickname ." is now ". $poke->species ."<br/>";
+			}
 		}
 		
 		//////CASE WIN
@@ -527,10 +532,6 @@
 		function addStart($splitLine){
 			global $pokes, $lastMovePoke, $show;
 			
-			print_r($splitLine);
-			
-			echo "<br/>";
-			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
 			$affectedPoke = getPokeByPlayerAndNickname($playerAndNickname);
@@ -544,7 +545,7 @@
 		
 		//////CASE -SIDESTART
 		function addSidestart($splitLine){
-			global $sideStarted, $lastMovePoke, $show;
+			global $trainers, $sideStarted, $lastMovePoke, $show;
 			
 			$player = decouplePlayerFromName($splitLine[2]);
 			
@@ -553,7 +554,7 @@
 			$sideStarted[$player][$started] = $lastMovePoke;
 			
 			if($show == 1){
-				echo $sideStarted[$player][$started]->species ." just started ". $started ."<br/>";
+				echo $sideStarted[$player][$started]->species ." started ". $started ." for ". $player ."'s side<br/>";
 			}
 		}
 		
@@ -657,6 +658,7 @@
 			
 			//Should never happen
 			//(ha ha ha.)
+			echo "ERROR: could not find ". $nickname ." in ". $player ."'s team<br/>";
 			return new Poke("unknown", "oh no");
 		}
 		
