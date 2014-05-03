@@ -775,15 +775,15 @@
 								echo $show ? "checked" : "";
 							}
 							
-							else{
-								//Default to checked if first time here
-								echo "checked";
-							}
-							
 						?> /> Detailed Results</label></td>
 						<td align="right"><label><input type="radio" name="show" value="0" <?php 
 							if(ISSET($_POST["show"])){
 								echo $show ? "" : "checked"; 
+							}
+							
+							else{
+								//Default to checked if first time here
+								echo "checked";
 							}
 							
 						?> /> Bottom Line Only</label></td>
