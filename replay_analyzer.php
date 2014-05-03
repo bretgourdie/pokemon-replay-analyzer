@@ -490,7 +490,7 @@
 				if($killerOnSameTeam == 0){
 					$killer->kills += 1;
 					if($show == 1){
-						echo $killer->species . colorFont(" killed ", "Red") . $poke->species ." by ". $killingMove ."<br/>";
+						echo $killer->species . colorFont(" killed ", "Red") . $poke->species ." with ". $killingMove ."<br/>";
 					}
 				}
 				
