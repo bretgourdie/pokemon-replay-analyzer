@@ -362,7 +362,7 @@
 		
 		//////CASE -DAMAGE
 		function checkDamage($splitLine){
-			global $lastMovePoke, $lastMoveUsed, $show, $currentWeatherSetter;
+			global $lastMovePoke, $lastMoveUsed, $show, $currentWeatherSetter, $sideStarted;
 			
 			//Do we need to act on this instance?
 			if($splitLine[3] == "0 fnt"){
@@ -371,8 +371,9 @@
 				//Get the player and nickname
 				$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 				
-				//Get the current poke
+				//Get the current poke and player
 				$poke = &getPokeByPlayerAndNickname($playerAndNickname);
+				$player = $playerAndNickname[0];
 				
 				//Record fainting
 				$poke->fainted = 1;
@@ -400,6 +401,8 @@
 					else{
 						//No "[of]", requires variable state to determine
 						//Otherwise, it's probably a self-death
+						
+						//Check status and weather
 						switch ($killingMove) {
 							case "brn":
 							case "psn":
@@ -414,9 +417,19 @@
 							
 							
 							default:
-								$killer = $poke;
+								//Check sidestarts
+								$sidestartResult = $sideStarted[$player][$fromSource];
+								
+								if(!is_null($sidestartResult)){
+									$killer = $sidestartResult;
+								}
+								
+								else{
+									$killer = $poke;
+								}
 							break;
 						}
+						
 					}
 					
 				}
