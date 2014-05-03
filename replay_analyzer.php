@@ -219,6 +219,10 @@
 								recordStatus($splitLine);
 							break;
 							
+							case "-start":
+								addStart($splitLine);
+							break;
+							
 							//////MARK SIDESTART
 							//Stealth Rocks and such are added to an array here
 							//	which we use to look up later
@@ -519,6 +523,25 @@
 			}
 		}
 		
+		//////CASE -START
+		function addStart($splitLine){
+			global $pokes, $lastMovePoke, $show;
+			
+			print_r($splitLine);
+			
+			echo "<br/>";
+			
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+			
+			$affectedPoke = getPokeByPlayerAndNickname($playerAndNickname);
+			
+			$started = $splitLine[3];
+			
+			$affectedPoke->startBy[$started] = $lastMovePoke;
+			
+			echo $affectedPoke->startBy[$started]->species ." started ". $started ." on ". $affectedPoke->species ."<br/>";
+		}
+		
 		//////CASE -SIDESTART
 		function addSidestart($splitLine){
 			global $sideStarted, $lastMovePoke, $show;
@@ -609,6 +632,13 @@
 			//Grab the player and nickname in $segment
 			//Split the two
 			$playerAndNicknameSplit = explode("a: ", $segment);
+			
+			//Sometimes we don't get a string in the format "pXa: "
+			//	Why? I dunno. Account for it here
+			if(count($playerAndNicknameSplit) < 2){
+				//Try exploding on ": " only, as we may not have the "a"
+				$playerAndNicknameSplit = explode(": ", $segment);
+			}
 			
 			return $playerAndNicknameSplit;
 		}
