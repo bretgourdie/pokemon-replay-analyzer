@@ -65,6 +65,7 @@
 		
 		//Flags to print things once if there's something to review
 		$seenReplace = 0;
+		$turn = 0;
 				
 		//Check if POST variables were passed
 		if(isset($_POST["page"]) && isset($_POST["show"])) {
@@ -230,6 +231,13 @@
 								addSidestart($splitLine);
 							break;
 							
+							//////INCREMENT TURN
+							//Keep track of which turn it is. Useful for debugging.
+							//	It's never too late to start! :D
+							case "turn":
+								incrementTurn($splitLine);
+							break;
+							
 							//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
 							}
 						}
@@ -373,7 +381,7 @@
 		
 		//////CASE -DAMAGE
 		function checkDamage($splitLine){
-			global $lastMovePoke, $lastMoveUsed, $show, $currentWeatherSetter, $sideStarted;
+			global $turn, $lastMovePoke, $lastMoveUsed, $show, $currentWeatherSetter, $sideStarted;
 			
 			//Do we need to act on this instance?
 			if($splitLine[3] == "0 fnt"){
@@ -445,6 +453,10 @@
 					
 				}
 				
+				if($show == 1){
+					echo "Turn ". $turn .": ";
+				}
+				
 				//Get the player of the fainted poke
 				$player = $playerAndNickname[0];
 				
@@ -468,7 +480,7 @@
 		
 		//////CASE -FORMECHANGE
 		function setMega($splitLine){
-			global $show;
+			global $show, $turn;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
@@ -478,7 +490,7 @@
 			$poke->species = $splitLine[3];
 			
 			if($show == 1){
-				echo $poke->nickname ." is now ". $poke->species ."<br/>";
+				echo "Turn ". $turn .": ". $poke->nickname ." is now ". $poke->species ."<br/>";
 			}
 		}
 		
@@ -508,7 +520,7 @@
 		
 		//////CASE -STATUS
 		function recordStatus($splitLine){
-			global $lastMovePoke, $show;
+			global $lastMovePoke, $show, $turn;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
@@ -525,6 +537,9 @@
 			}
 			
 			if($show == 1){
+				
+				echo "Turn ". $turn .": ";
+				
 				if(count($splitLine) > 4){
 					echo $affectedPoke->species ." statused itself with ". $splitLine[3] ."<br/>";
 				}
@@ -537,7 +552,7 @@
 		
 		//////CASE -START
 		function addStart($splitLine){
-			global $pokes, $lastMovePoke, $show;
+			global $pokes, $lastMovePoke, $show, $turn;
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
@@ -547,12 +562,14 @@
 			
 			$affectedPoke->startBy[$started] = $lastMovePoke;
 			
-			echo $affectedPoke->startBy[$started]->species ." started ". $started ." on ". $affectedPoke->species ."<br/>";
+			if($show == 1){
+				echo "Turn ". $turn .": ". $affectedPoke->startBy[$started]->species ." started ". $started ." on ". $affectedPoke->species ."<br/>";
+			}
 		}
 		
 		//////CASE -SIDESTART
 		function addSidestart($splitLine){
-			global $trainers, $sideStarted, $lastMovePoke, $show;
+			global $trainers, $sideStarted, $lastMovePoke, $show, $turn;
 			
 			$player = decouplePlayerFromName($splitLine[2]);
 			
@@ -561,13 +578,17 @@
 			$sideStarted[$player][$started] = $lastMovePoke;
 			
 			if($show == 1){
-				echo $sideStarted[$player][$started]->species ." started ". $started ." for ". $player ."'s side<br/>";
+				echo "Turn ". $turn .": ". $sideStarted[$player][$started]->species ." started ". $started ." for ". $player ."'s side<br/>";
 			}
 		}
 		
 		//////CASE -WEATHER
 		function markWeather($splitLine){
-			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show;
+			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show, $turn;
+			
+			if($show == 1){
+				echo "Turn ". $turn .": ";
+			}
 			
 			$weather = $splitLine[2];
 			
@@ -590,6 +611,13 @@
 			if($show == 1){
 				echo $currentWeatherSetter->species ." set the weather to ". $weather ."<br/>";
 			}
+		}
+		
+		//////CASE TURN
+		function incrementTurn($splitLine){
+			global $turn;
+			
+			$turn = $splitLine[2];
 		}
 		
 		function decoupleStartedFromType($segment){
