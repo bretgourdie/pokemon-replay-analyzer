@@ -59,7 +59,6 @@
 		$lastMovePoke = "";
 		$sideStarted = array();
 		//For weather
-		//TODO: make last switched into an array
 		$lastSwitchedPoke = "";
 		$currentWeatherSetter = "";
 		$weatherMove = 0;
@@ -633,6 +632,11 @@
 			
 			if($show == 1){
 				echo $currentWeatherSetter->species . colorFont(" set the weather ", "Blue") ."to ". $weather ."<br/>";
+			}
+			
+			if($turn == 0){
+				echo colorFont("Warning: ", "Red") . $currentWeatherSetter->species ." detected as having started ". $weather .
+					". If this isn't correct, kills may have to be adjusted.<br/>";
 			}
 		}
 		
