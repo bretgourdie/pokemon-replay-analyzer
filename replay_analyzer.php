@@ -59,6 +59,7 @@
 		$lastMovePoke = "";
 		$sideStarted = array();
 		//For weather
+		//TODO: make last switched into an array
 		$lastSwitchedPoke = "";
 		$currentWeatherSetter = "";
 		$weatherMove = 0;
@@ -482,18 +483,18 @@
 				if($killerOnSameTeam == 0){
 					$killer->kills += 1;
 					if($show == 1){
-						echo $killer->species ." killed ". $poke->species ." by ". $killingMove ."<br/>";
+						echo $killer->species . colorFont(" killed ", "Red") . $poke->species ." by ". $killingMove ."<br/>";
 					}
 				}
 				
 				else{
 					if($show == 1){
 						if($killer == $poke){
-							echo $killer->species ." killed itself by ". $killingMove ."<br/>";
+							echo $killer->species . colorFont(" killed ", "Red") ."itself by ". $killingMove ."<br/>";
 						}
 						
 						else{
-							echo $killer->species ." killed ". $poke->species ." (same-team) by ". $killingMove ."<br/>";
+							echo $killer->species . colorFont(" killed ", "Red") . $poke->species ." (same-team) by ". $killingMove ."<br/>";
 						}
 					}
 				}
@@ -512,7 +513,7 @@
 			$poke->species = $splitLine[3];
 			
 			if($show == 1){
-				echo "Turn ". $turn .": ". $poke->nickname ." is now ". $poke->species ."<br/>";
+				echo "Turn ". $turn .": ". $poke->nickname . colorFont(" has become ", "Brown") . $poke->species ."<br/>";
 			}
 		}
 		
@@ -563,11 +564,11 @@
 				echo "Turn ". $turn .": ";
 				
 				if(count($splitLine) > 4){
-					echo $affectedPoke->species ." statused itself with ". $splitLine[3] ."<br/>";
+					echo $affectedPoke->species . colorFont(" statused ", "Purple") ."itself with ". $splitLine[3] ."<br/>";
 				}
 				
 				else{
-					echo $affectedPoke->statusBy->species ." statused ". $affectedPoke->species ." with ". $splitLine[3] ."<br/>";
+					echo $affectedPoke->statusBy->species .colorFont(" statused ", "Purple") . $affectedPoke->species ." with ". $splitLine[3] ."<br/>";
 				}
 			}
 		}
@@ -585,7 +586,7 @@
 			$affectedPoke->startBy[$started] = $lastMovePoke;
 			
 			if($show == 1){
-				echo "Turn ". $turn .": ". $affectedPoke->startBy[$started]->species ." started ". $started ." on ". $affectedPoke->species ."<br/>";
+				echo "Turn ". $turn .": ". $affectedPoke->startBy[$started]->species . colorFont(" started ", "Green") . $started ." on ". $affectedPoke->species ."<br/>";
 			}
 		}
 		
@@ -600,7 +601,7 @@
 			$sideStarted[$player][$started] = $lastMovePoke;
 			
 			if($show == 1){
-				echo "Turn ". $turn .": ". $sideStarted[$player][$started]->species ." started ". $started ." for ". $player ."'s side<br/>";
+				echo "Turn ". $turn .": ". $sideStarted[$player][$started]->species . colorFont(" started ", "Green") . $started ." for ". $player ."'s side<br/>";
 			}
 		}
 		
@@ -631,7 +632,7 @@
 			}
 			
 			if($show == 1){
-				echo $currentWeatherSetter->species ." set the weather to ". $weather ."<br/>";
+				echo $currentWeatherSetter->species . colorFont(" set the weather ", "Blue") ."to ". $weather ."<br/>";
 			}
 		}
 		
