@@ -64,6 +64,7 @@
 		$weatherMove = 0;
 		
 		//Flags to print things once if there's something to review
+		$seenFirstWeather = 0;
 		$seenReplace = 0;
 		$turn = 0;
 				
@@ -166,7 +167,7 @@
 								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
 								
 								if($splitLine[1] == "replace" && $seenReplace == 0){
-									echo "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
+									echo colorFont("Warning: ", "Red") . "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
 										."Please manually adjust the kill count.<br/>";
 									$seenReplace = 1;
 								}
@@ -606,7 +607,7 @@
 		
 		//////CASE -WEATHER
 		function markWeather($splitLine){
-			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show, $turn;
+			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show, $turn, $seenFirstWeather;
 			
 			if($show == 1){
 				echo "Turn ". $turn .": ";
@@ -635,8 +636,19 @@
 			}
 			
 			if($turn == 0){
-				echo colorFont("Warning: ", "Red") . $currentWeatherSetter->species ." detected as having started ". $weather .
-					". If this isn't correct, kills may have to be adjusted.<br/>";
+				
+				if($seenFirstWeather == 0){
+					$seenFirstWeather = 1;
+					echo colorFont("Warning: ", "Red") . $currentWeatherSetter->species ." detected as having started ". $weather .
+						". If this is not correct, kills may have to be adjusted.<br/>";
+				}
+				
+				else{
+					echo colorFont("Warning: ", "Red") . "Disregard previous message; ". 
+						$currentWeatherSetter->species ." is now responsible for ". $weather .
+						". If this is not correct, kills may have to be adjusted.<br/>";
+				}
+				
 			}
 		}
 		
