@@ -357,6 +357,12 @@
 			$ownedBy = $splitLine[2];
 			$species = decoupleSpeciesFromGender($splitLine[3]);
 			
+			//If there's an asterisk, we're gonna assume it's
+			//	Something-Super (looking at you, Gourgeist)
+			if(strpos($species, "*") !== false){
+				$species = str_replace("*", "Super", $species);
+			}
+			
 			//Create new poke
 			$newPoke = new Poke($species);
 			//Append it to the pokes array
