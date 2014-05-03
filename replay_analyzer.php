@@ -249,7 +249,8 @@
 				
 				$winner = "";
 				$loser = "";
-				$numberLeft = 0;
+				$winnerNumberLeft = 0;
+				$loserNumberLeft = 0;
 				//Detemine the winner and the loser
 				foreach($trainers as $trainer){
 					if($trainer->win == 1){
@@ -258,17 +259,23 @@
 						//Determine how many pokemon the winner had left
 						foreach($pokes[$winner->p] as $species => $poke){
 							if($poke->fainted == 0){
-								$numberLeft += 1;
+								$winnerNumberLeft += 1;
 							}
 						}
 					}
 					
 					else{
 						$loser = $trainer;
+						
+						foreach($pokes[$loser->p] as $species => $poke){
+							if($poke->fainted == 0){
+								$loserNumberLeft += 1;
+							}
+						}
 					}
 				}
 				
-				echo "<b>". $winner->name ." def. ". $loser->name ." (". $numberLeft ."-0)</b><br/>";
+				echo "<b>". $winner->name ." def. ". $loser->name ." (". $winnerNumberLeft ."-", $loserNumberLeft .")</b><br/>";
 				
 				
 				echo "(". $url .")<br/><br/>";
