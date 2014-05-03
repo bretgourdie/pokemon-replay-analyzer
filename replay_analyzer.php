@@ -239,6 +239,13 @@
 								incrementTurn($splitLine);
 							break;
 							
+							//////HANDLE ACTIVATE
+							//If we need to save state on an activate command,
+							//	do so here
+							case "-activate":
+								handleActivate($splitLine);
+							break;
+							
 							//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
 							}
 						}
@@ -652,6 +659,38 @@
 			}
 		}
 		
+		//////CASE -ACTIVATE
+		function handleActivate($splitLine){
+			global $show, $lastMovePoke;
+			
+			$activated = $splitLine[3];
+			
+			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
+			
+			$activatedPoke = getPokeByPlayerAndNickname($playerAndNickname);
+			
+			switch ($activated){
+				case "Destiny Bond":
+					$nextLine = peekAtNextLine();
+					
+					$nextLineSplit = explode("|", $nextLine);
+					
+					if($nextLineSplit[1] == "faint"){
+						$otherPlayerAndNickname = getPlayerAndNickname($nextLineSplit[2]);
+						
+						$faintedPoke = getPokeByPlayerAndNickname($otherPlayerAndNickname);
+						
+						$activatedPoke->kills += 1;
+						
+						$faintedPoke->fainted = 1;
+						
+						echo $activatedPoke->species . colorFont(" dragged ", "Green") . $faintedPoke->species .
+							" down with him with Destiny Bond<br/>";
+					}
+				break;
+			}
+		}
+		
 		//////CASE TURN
 		function incrementTurn($splitLine){
 			global $turn;
@@ -734,6 +773,12 @@
 			//(ha ha ha.)
 			echo "ERROR: could not find ". $nickname ." in ". $player ."'s team<br/>";
 			return new Poke("unknown", "oh no");
+		}
+		
+		function peekAtNextLine(){
+			global $sourceByLines, $ii;
+			
+			return $sourceByLines[$ii + 1];
 		}
 		
 		function addSide($splitLine){
