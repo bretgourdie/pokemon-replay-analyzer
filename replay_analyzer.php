@@ -684,8 +684,10 @@
 						
 						$faintedPoke->fainted = 1;
 						
-						echo $activatedPoke->species . colorFont(" dragged ", "Green") . $faintedPoke->species .
-							" down with him with Destiny Bond<br/>";
+						if($show == 1){
+							echo $activatedPoke->species . colorFont(" dragged ", "Green") . $faintedPoke->species .
+								" down with him with Destiny Bond<br/>";
+						}
 					}
 				break;
 			}
