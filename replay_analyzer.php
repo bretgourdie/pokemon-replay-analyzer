@@ -167,7 +167,8 @@
 								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
 								
 								if($splitLine[1] == "replace" && $seenReplace == 0){
-									echo colorFont("Warning: ", "Red") . "A Pokemon changed appearance. "
+									echo colorFont("Warning: ", "Red") 
+										. "A Pokemon changed appearance. "
 										."Its kills are undetectable before this occurs. "
 										."Please manually adjust the kill count.<br/>";
 									$seenReplace = 1;
@@ -341,7 +342,9 @@
 						echo "<tr>";
 							echo addTD($poke->species);
 							echo addTD($poke->kills);
-							echo addTD( $poke->fainted == 1 ? colorFont("Yes", "red") : colorFont("No", "green") );
+							echo addTD( 
+								$poke->fainted == 1 ? colorFont("Yes", "red") : colorFont("No", "green")
+							);
 						echo "</tr>";
 					}
 					
@@ -522,7 +525,9 @@
 				if($killerOnSameTeam == 0){
 					$killer->kills += 1;
 					if($show == 1){
-						echo $killer->species . colorFont(" killed ", "Red") . $poke->species ." with ". $killingMove ."<br/>";
+						echo $killer->species . colorFont(" killed ", "Red") 
+							. $poke->species 
+							." with ". $killingMove ."<br/>";
 					}
 				}
 				
@@ -530,11 +535,18 @@
 				else{
 					if($show == 1){
 						if($killer == $poke){
-							echo $killer->species . colorFont(" killed ", "Red") ."itself by ". $killingMove ."<br/>";
+							echo $killer->species 
+								. colorFont(" killed ", "Red") 
+								."itself by "
+								. $killingMove ."<br/>";
 						}
 						
 						else{
-							echo $killer->species . colorFont(" killed ", "Red") . $poke->species ." (same-team) by ". $killingMove ."<br/>";
+							echo $killer->species 
+								. colorFont(" killed ", "Red") 
+								. $poke->species 
+								." (same-team) by "
+								. $killingMove ."<br/>";
 						}
 					}
 				}
@@ -553,7 +565,10 @@
 			$poke->species = $splitLine[3];
 			
 			if($show == 1){
-				echo "Turn ". $turn .": ". $poke->nickname . colorFont(" has become ", "Brown") . $poke->species ."<br/>";
+				echo "Turn ". $turn .": "
+					. $poke->nickname 
+					. colorFont(" has become ", "Brown") 
+					. $poke->species ."<br/>";
 			}
 		}
 		
@@ -605,11 +620,18 @@
 				echo "Turn ". $turn .": ";
 				
 				if(count($splitLine) > 4){
-					echo $affectedPoke->species . colorFont(" statused ", "Purple") ."itself with ". $splitLine[3] ."<br/>";
+					echo $affectedPoke->species 
+						. colorFont(" statused ", "Purple") 
+						."itself with "
+						. $splitLine[3] ."<br/>";
 				}
 				
 				else{
-					echo $affectedPoke->statusBy->species .colorFont(" statused ", "Purple") . $affectedPoke->species ." with ". $splitLine[3] ."<br/>";
+					echo $affectedPoke->statusBy->species 
+						. colorFont(" statused ", "Purple") 
+						. $affectedPoke->species 
+						." with "
+						. $splitLine[3] ."<br/>";
 				}
 			}
 		}
@@ -628,7 +650,12 @@
 			$affectedPoke->startBy[$started] = $lastMovePoke;
 			
 			if($show == 1){
-				echo "Turn ". $turn .": ". $affectedPoke->startBy[$started]->species . colorFont(" started ", "Green") . $started ." on ". $affectedPoke->species ."<br/>";
+				echo "Turn ". $turn .": "
+					. $affectedPoke->startBy[$started]->species 
+					. colorFont(" started ", "Green") 
+					. $started 
+					." on "
+					. $affectedPoke->species ."<br/>";
 			}
 		}
 		
@@ -644,13 +671,19 @@
 			$sideStarted[$player][$started] = $lastMovePoke;
 			
 			if($show == 1){
-				echo "Turn ". $turn .": ". $sideStarted[$player][$started]->species . colorFont(" started ", "Green") . $started ." for ". $player ."'s side<br/>";
+				echo "Turn ". $turn .": "
+					. $sideStarted[$player][$started]->species 
+					. colorFont(" started ", "Green") 
+					. $started 
+					." for "
+					. $player ."'s side<br/>";
 			}
 		}
 		
 		//////CASE -WEATHER
 		function markWeather($splitLine){
-			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show, $turn, $seenFirstWeather;
+			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, 
+				$show, $turn, $seenFirstWeather;
 			
 			if($show == 1 && $turn > 0){
 				echo "Turn ". $turn .": ";
@@ -675,7 +708,10 @@
 			}
 			
 			if($show == 1 && $turn > 0){
-				echo $currentWeatherSetter->species . colorFont(" set the weather ", "Blue") ."to ". $weather ."<br/>";
+				echo $currentWeatherSetter->species 
+					. colorFont(" set the weather ", "Blue") 
+					."to "
+					. $weather ."<br/>";
 			}
 			
 			//Turn 0 is the only time there's a a question as to who set the weather.
@@ -685,17 +721,23 @@
 				
 				if($seenFirstWeather == 0){
 					$seenFirstWeather = 1;
-					echo colorFont("Warning: ", "Red") . $currentWeatherSetter->species ." detected as"
-						. colorFont(" having started ", "Blue") . $weather 
+					echo colorFont("Warning: ", "Red") 
+						. $currentWeatherSetter->species 
+						." detected as"
+						. colorFont(" having started ", "Blue") 
+						. $weather 
 						. ". If this is not correct, kills may have to be adjusted.<br/>";
 				}
 				
 				else{
-					echo colorFont("Warning: ", "Red") . "Disregard previous message; ". 
-						$currentWeatherSetter->species ." is"
+					echo colorFont("Warning: ", "Red") 
+						. "Disregard previous message; "
+						. $currentWeatherSetter->species 
+						." is"
 						. colorFont(" now responsible ", "Blue")
-						. "for ". $weather .
-						". If this is not correct, kills may have to be adjusted.<br/>";
+						. "for "
+						. $weather 
+						. ". If this is not correct, kills may have to be adjusted.<br/>";
 				}
 				
 			}
