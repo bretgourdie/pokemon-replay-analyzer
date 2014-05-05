@@ -16,7 +16,7 @@
 	<body>
 		<center>
 		<h1>Pokemon Showdown Replay Analyzer</h1>
-		<h4>By Gor-Don :)</h4>
+		<h4>-By Bret Gourdie</h4>
 		<?php
 		
 		class Trainer
