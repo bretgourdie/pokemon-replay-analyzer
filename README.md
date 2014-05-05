@@ -10,5 +10,3 @@ Instructions:
 	Enter a Pokemon Showdown Replay URL, click analyze, then sit back as
 	the PHP script determines the kill/death and fainting of each 'mon
 	as well as the winning trainer.
-	
-	Obviously this is currently a work in progress.
