@@ -66,6 +66,8 @@
 		//Flags to print things once if there's something to review
 		$seenFirstWeather = 0;
 		$seenReplace = 0;
+		
+		//Turn counter, mostly for detailed results and debugging
 		$turn = 0;
 				
 		//Check if POST variables were passed
@@ -94,7 +96,6 @@
 					
 					//check if we are at the log
 					if(strpos($sourceByLines[$ii], 'class="log"') !== false){
-						//echo "found the start of the log<br />";
 						
 						$insideLog = true;
 						$sourceByLines[$ii] = str_replace('<script type="text/plain" class="log">', 
@@ -106,7 +107,6 @@
 					
 					//found the end of the log; snip off the ending </script>
 					else if($insideLog && strpos($sourceByLines[$ii], "</script>") !== false){
-						//echo "found the end of the log<br />";
 						$atTheEnd = true;
 						$sourceByLines[$ii] = str_replace('</script>', 
 							"", 
@@ -115,7 +115,7 @@
 					}
 					
 					
-					//state logic here
+					//We are looking at log data from this point on
 					if($insideLog){
 						//inside the log
 						$currentLine = $sourceByLines[$ii];
@@ -141,7 +141,7 @@
 							
 							//////ADD POKE
 							//If there's a new pokemon, add it to the array
-							//	indexed by the trainer
+							//	indexed by the trainer and then by species
 							case "poke":
 								addPoke($splitLine);
 							break;
@@ -153,7 +153,7 @@
 							//	the pokemon by nickname, not species.
 							//	(?????????????????????????????????? why.)
 							case "switch":
-							//Also check for "dragging in" a poke
+							//Also check for "dragging in" a poke (same deal)
 							case "drag":
 							//////REPLACE POKE
 							//Only seen with Zoroark (so far)
@@ -167,7 +167,8 @@
 								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
 								
 								if($splitLine[1] == "replace" && $seenReplace == 0){
-									echo colorFont("Warning: ", "Red") . "A Pokemon changed appearance. Its kills are undetectable before this occurs. "
+									echo colorFont("Warning: ", "Red") . "A Pokemon changed appearance. "
+										."Its kills are undetectable before this occurs. "
 										."Please manually adjust the kill count.<br/>";
 									$seenReplace = 1;
 								}
@@ -204,10 +205,9 @@
 							
 							//////RECORD WEATHER
 							//Keep track of who put the weather up
-							//Don't functionize this :<
 							case "-weather":
-								//If it's 4, it's just upkeep
-								//otherwise, 3 and not "none" means weather is starting
+								//If it's 4 long, it's just upkeep
+								//otherwise, 3 long and not "none" means weather is starting
 								if(count($splitLine) == 3 && $splitLine[2] != "none"){
 									//record who set the weather on which team
 									markWeather($splitLine);
@@ -215,19 +215,25 @@
 							break;
 							
 							//////RECORD STATUS EFFECT
-							//If someone affects someone else with a status,
-							//	record it just in case
+							//Although we really only care about damaging status,
+							//	like burn and poison, we just record any status
+							//	just in case something silly happens
 							case "-status":
 								recordStatus($splitLine);
 							break;
 							
+							//////ADD A START
+							//Record a debuff to a specific poke.
+							//	Typically anything over time is given this,
+							//	such as Leech Seed or Substitute
 							case "-start":
 								addStart($splitLine);
 							break;
 							
 							//////MARK SIDESTART
-							//Stealth Rocks and such are added to an array here
-							//	which we use to look up later
+							//Record a debuff to an entire trainer's team
+							//	Typically anything that stays after a switch-out,
+							//	such as Stealth Rocks
 							case "-sidestart":
 								addSidestart($splitLine);
 							break;
@@ -235,18 +241,20 @@
 							//////INCREMENT TURN
 							//Keep track of which turn it is. Useful for debugging.
 							//	It's never too late to start! :D
+							//	(this was added quite late into production)
 							case "turn":
 								incrementTurn($splitLine);
 							break;
 							
 							//////HANDLE ACTIVATE
-							//If we need to save state on an activate command,
-							//	do so here
+							//Activates are going to have to be handled on a "by case"
+							//	basis unless I care enough to look into it.
+							//	In the league, we really only see Destiny Bond,
+							//	so we can handle it specifically in the method
 							case "-activate":
 								handleActivate($splitLine);
 							break;
 							
-							//DON'T ADD A CASE BELOW THIS LINE TO AVOID SYNTAX ERROR ):[
 							}
 						}
 					}
@@ -254,25 +262,27 @@
 					
 					if($atTheEnd){
 						$insideLog = false;
+						//We don't care about anything else in the source, so break here
 						break;
 					}
 				}
 				
-				//Arrange "[Winner] def [Loser] (X-0)" before printing the table
+				//Start printing stuff
 				if($show == 1){
 					echo "<h3><u>THE BOTTOM LINE:</u></h3>";
 				}
 				
+				//Arrange "[Winner] def [Loser] (X-Y)" before printing the table
 				$winner = "";
 				$loser = "";
 				$winnerNumberLeft = 0;
 				$loserNumberLeft = 0;
-				//Detemine the winner and the loser
+				//Determine the winner and the loser
+				//	and then how many pokes they had left
 				foreach($trainers as $trainer){
 					if($trainer->win == 1){
 						$winner = $trainer;
 						
-						//Determine how many pokemon the winner had left
 						foreach($pokes[$winner->p] as $species => $poke){
 							if($poke->fainted == 0){
 								$winnerNumberLeft += 1;
@@ -291,12 +301,21 @@
 					}
 				}
 				
-				echo "<b>". $winner->name ." def. ". $loser->name ." (". $winnerNumberLeft ."-", $loserNumberLeft .")</b><br/>";
+				echo "<b>"
+					. $winner->name 
+					    ." def. "
+					. $loser->name 
+					." ("
+						. $winnerNumberLeft 
+						."-"
+						. $loserNumberLeft 
+					.")</b><br/>";
 				
 				
 				echo "(". $url .")<br/><br/>";
 				
 				//Everything is parsed; make two pretty tables!
+				//	(well, one for each trainer)
 				//Iterate through each trainer
 				if($show == 1){
 					echo "Results:<br />";
@@ -340,6 +359,15 @@
 			echo "</div></div>";
 		}
 		
+		//Case functions are below
+		//In a lot of them, we are given the following format:
+		//pXa: pokeNickname
+		//where X is either 1 or 2 (whichever player the poke belongs to)
+		//We then split the two up, grabbing the player if needed,
+		//	and find the poke by the trainer and the nickname
+		//We must do this because the pokes are given to us without
+		//	any nicknames and this operation is O(6) anyway
+		
 		//////CASE PLAYER
 		function addPlayer($splitLine){
 			global $pokes, $trainers;
@@ -382,14 +410,16 @@
 		function grabNickname($splitLine){
 			global $pokes;
 			
+			//Get the player and nickname separately
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
-			//Get the player and nickname
+			
 			$player = $playerAndNickname[0];
 			$nickname = $playerAndNickname[1];
 			
 			//Grab the species and gender
 			$species = decoupleSpeciesFromGender($splitLine[3]);
 			
+			//Set the nickname we just got to the poke it belongs to
 			$pokes[$player][$species]->nickname = $nickname;
 		}
 		
@@ -411,12 +441,14 @@
 				//Record fainting
 				$poke->fainted = 1;
 				
-				//Say what happened
+				//Figure out what happened
+				//Initially assume it was from a killing move
+				//	(easiest)
 				$killingMove = $lastMoveUsed;
 				$killer = $lastMovePoke;
 				
 				if(count($splitLine) > 4){
-					//Something other than a move
+					//Something other than a move: indirect damage
 					$fromSource = $splitLine[4];
 					$fromSource = str_replace("[from] ", "", $fromSource);
 					$killingMove = $fromSource;
@@ -448,7 +480,7 @@
 								$killer = $currentWeatherSetter;
 							break;
 							
-							
+							//Not status nor weather...
 							default:
 								//Check sidestarts
 								$sidestartResult = $sideStarted[$player][$fromSource];
@@ -459,7 +491,6 @@
 								
 								else{
 									//Check starts
-									
 									$startResult = $poke->startBy[$fromSource];
 									
 									if(!is_null($startResult)){
@@ -487,6 +518,7 @@
 				//If the killer is on the same team, don't count that kill
 				$killerOnSameTeam = checkIfKillerOnSameTeam($killer, $player);
 				
+				//If killer is not on same team
 				if($killerOnSameTeam == 0){
 					$killer->kills += 1;
 					if($show == 1){
@@ -494,6 +526,7 @@
 					}
 				}
 				
+				//Else the killer was on the same team
 				else{
 					if($show == 1){
 						if($killer == $poke){
@@ -530,6 +563,7 @@
 			
 			$winner = $splitLine[2];
 			
+			//Mark the winner on the trainer's attribute
 			foreach($trainers as $trainer){
 				if($trainer->name == $winner){
 					$trainer->win = 1;
@@ -590,6 +624,7 @@
 			
 			$started = $splitLine[3];
 			
+			//Mark who started what on this poke
 			$affectedPoke->startBy[$started] = $lastMovePoke;
 			
 			if($show == 1){
@@ -605,6 +640,7 @@
 			
 			$started = decoupleStartedFromType($splitLine[3]);
 			
+			//Mark who started what on $player's side
 			$sideStarted[$player][$started] = $lastMovePoke;
 			
 			if($show == 1){
@@ -642,6 +678,9 @@
 				echo $currentWeatherSetter->species . colorFont(" set the weather ", "Blue") ."to ". $weather ."<br/>";
 			}
 			
+			//Turn 0 is the only time there's a a question as to who set the weather.
+			//The order of which poke is sent out first is at the mercy of the log,
+			//	and it is not always clear when the weather-setter was sent out (first or second)
 			if($turn == 0){
 				
 				if($seenFirstWeather == 0){
@@ -669,6 +708,7 @@
 			
 			$activatedPoke = getPokeByPlayerAndNickname($playerAndNickname);
 			
+			//Right now we only care about Destiny Bond but we have room to expand
 			switch ($activated){
 				case "Destiny Bond":
 					$nextLine = peekAtNextLine();
@@ -685,8 +725,9 @@
 						$faintedPoke->fainted = 1;
 						
 						if($show == 1){
-							echo $activatedPoke->species . colorFont(" dragged ", "Green") . $faintedPoke->species .
-								" down with him with Destiny Bond<br/>";
+							echo $activatedPoke->species 
+								. colorFont(" dragged ", "Green") . $faintedPoke->species 
+								. " down with him with Destiny Bond<br/>";
 						}
 					}
 				break;
@@ -694,11 +735,17 @@
 		}
 		
 		//////CASE TURN
+		//Increment turn is a bit of a misnomer, we update the turn to whatever is given
+		//	but it only goes up by one each turn, so
 		function incrementTurn($splitLine){
 			global $turn;
 			
 			$turn = $splitLine[2];
 		}
+		
+		//End case functions
+		
+		//Begin helper functions
 		
 		function decoupleStartedFromType($segment){
 			$typeAndStarted = explode(": ", $segment);
@@ -735,21 +782,19 @@
 		}
 		
 		function decoupleSpeciesFromGender($segment){
-			//$segment has the poke species and gender
-			//Split the species from the gender
+		
 			$speciesAndGenderSplit = explode(", ", $segment);
-			//Grab the species
+			
 			$species = $speciesAndGenderSplit[0];
-			//Return it!
+			
 			return $species;
 		}
 		
 		function getplayerAndNickname($segment){
-			//Grab the player and nickname in $segment
-			//Split the two
+		
 			$playerAndNicknameSplit = explode("a: ", $segment);
 			
-			//Sometimes we don't get a string in the format "pXa: "
+			//Sometimes we get a string in the format "pX: "
 			//	Why? I dunno. Account for it here
 			if(count($playerAndNicknameSplit) < 2){
 				//Try exploding on ": " only, as we may not have the "a"
@@ -759,6 +804,11 @@
 			return $playerAndNicknameSplit;
 		}
 		
+		//May need the address returned sometimes. Anywhere where I
+		//	use the address was done by trial and error and may not
+		//	be needed anymore but I don't wan to touch it
+		//$playerAndNickname is expected as an array returned from
+		//	getPlayerAndNickname, not the splitLine segment
 		function &getPokeByPlayerAndNickname($playerAndNickname){
 			global $pokes;
 			
@@ -777,6 +827,7 @@
 			return new Poke("unknown", "oh no");
 		}
 		
+		//Only used for Destiny Bond to see what is killed as a result
 		function peekAtNextLine(){
 			global $sourceByLines, $ii;
 			
@@ -786,13 +837,13 @@
 		function addSide($splitLine){
 			global $trainers, $sideStarted;
 
-			//Grab the player number
 			$player = $splitLine[2];
 			//Add a new sidestart array for the trainer,
 			//	indexed by trainer
 			$sideStarted[$player] = array();
 		}
 		
+		//Gotten from StackOverflow, used to check for a 404
 		function get_http_response_code($url) {
 			$headers = get_headers($url);
 			return substr($headers[0], 9, 3);
