@@ -616,7 +616,7 @@
 		function markWeather($splitLine){
 			global $lastMovePoke, $lastSwitchedPoke, $currentWeatherSetter, $show, $turn, $seenFirstWeather;
 			
-			if($show == 1){
+			if($show == 1 && $turn > 0){
 				echo "Turn ". $turn .": ";
 			}
 			
@@ -633,12 +633,12 @@
 			//Else, it must have come from a switch
 			else{
 				$currentWeatherSetter = $lastSwitchedPoke;
-				if($show == 1){
+				if($show == 1 && $turn > 0){
 					echo "Switching in, ";
 				}
 			}
 			
-			if($show == 1){
+			if($show == 1 && $turn > 0){
 				echo $currentWeatherSetter->species . colorFont(" set the weather ", "Blue") ."to ". $weather ."<br/>";
 			}
 			
