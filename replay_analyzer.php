@@ -685,13 +685,16 @@
 				
 				if($seenFirstWeather == 0){
 					$seenFirstWeather = 1;
-					echo colorFont("Warning: ", "Red") . $currentWeatherSetter->species ." detected as having started ". $weather .
-						". If this is not correct, kills may have to be adjusted.<br/>";
+					echo colorFont("Warning: ", "Red") . $currentWeatherSetter->species ." detected as"
+						. colorFont(" having started ", "Blue") . $weather 
+						. ". If this is not correct, kills may have to be adjusted.<br/>";
 				}
 				
 				else{
 					echo colorFont("Warning: ", "Red") . "Disregard previous message; ". 
-						$currentWeatherSetter->species ." is now responsible for ". $weather .
+						$currentWeatherSetter->species ." is"
+						. colorFont(" now responsible ", "Blue")
+						. "for ". $weather .
 						". If this is not correct, kills may have to be adjusted.<br/>";
 				}
 				
