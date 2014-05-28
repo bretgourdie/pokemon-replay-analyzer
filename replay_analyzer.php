@@ -164,7 +164,7 @@
 								
 								//For weather
 								$playerAndNickname = getPlayerAndNickname($splitLine[2]);
-								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
+								$lastSwitchedPoke = getPokeByPlayerAndNickname($playerAndNickname);
 								
 								if($splitLine[1] == "replace" && $seenReplace == 0){
 									echo colorFont("Warning: ", "Red") 
@@ -201,7 +201,7 @@
 								
 								//For weather
 								$playerAndNickname = getPlayerAndNickname($splitLine[2]);
-								$lastSwitchedPoke = &getPokeByPlayerAndNickname($playerAndNickname);
+								$lastSwitchedPoke = getPokeByPlayerAndNickname($playerAndNickname);
 							break;
 							
 							//////RECORD WEATHER
@@ -438,7 +438,7 @@
 				$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 				
 				//Get the current poke and player
-				$poke = &getPokeByPlayerAndNickname($playerAndNickname);
+				$poke = getPokeByPlayerAndNickname($playerAndNickname);
 				$player = $playerAndNickname[0];
 				
 				//Record fainting
@@ -463,7 +463,7 @@
 						$ofSource = $splitLine[5];
 						$ofSource = str_replace("[of] ", "", $ofSource);
 						$killerPlayerAndNickname = getPlayerAndNickname($ofSource);
-						$killer = &getPokeByPlayerAndNickname($killerPlayerAndNickname);
+						$killer = getPokeByPlayerAndNickname($killerPlayerAndNickname);
 					}
 					
 					else{
@@ -559,7 +559,7 @@
 			
 			$playerAndNickname = getPlayerAndNickname($splitLine[2]);
 			
-			$poke = &getPokeByPlayerAndNickname($playerAndNickname);
+			$poke = getPokeByPlayerAndNickname($playerAndNickname);
 			
 			//Set species to new mega species (Mega-[species] but we parse it anyway)
 			$poke->species = $splitLine[3];
@@ -854,7 +854,7 @@
 		//	be needed anymore but I don't wan to touch it
 		//$playerAndNickname is expected as an array returned from
 		//	getPlayerAndNickname, not the splitLine segment
-		function &getPokeByPlayerAndNickname($playerAndNickname){
+		function getPokeByPlayerAndNickname($playerAndNickname){
 			global $pokes;
 			
 			$player = $playerAndNickname[0];
