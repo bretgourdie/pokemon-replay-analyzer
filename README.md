@@ -6,12 +6,14 @@ Website currently hosted at:
 	http://www.pokemonbattlefederation.com/replay_analyzer.php
 
 Instructions
+------
 	
 	Enter a Pokemon Showdown Replay URL, click analyze, then sit back as
 	the PHP script determines the kill/death and fainting of each 'mon
 	as well as the winning trainer.
 
 Program Flow
+------
 	
 	After some initialization, the program checks the supplied URL and makes 
 	sure that it is from replay.pokemonshowdown.com, then ensures that the
@@ -61,6 +63,7 @@ Program Flow
 	side-starting, etc.).
 	
 Some weird stuff I came across
+------
 	
 	I have to grab the nickname of each Pokemon as it switches in because
 	it isn't included in the initial Pokemon definition and yet is required
