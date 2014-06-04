@@ -20,6 +20,7 @@ __TL;DR__
 5. Draw a header showing who won
 6. Draw two tables with both team's stats
 
+
 After some initialization, the program checks the supplied URL and makes sure that it is from replay.pokemonshowdown.com, then ensures that the provided replay exists (even a valid replay URL can eventually be deleted after a certain amount of time).
 
 The program then reads the HTML source of the replay, digging for the beginning of the battle, which begins at the "log" class script.
