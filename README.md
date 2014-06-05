@@ -12,13 +12,13 @@ Enter a Pokemon Showdown Replay URL, click analyze, then sit back as the PHP scr
 Program Flow
 ------
 __TL;DR__
-0. Validate passed URL if provided at this point
-1. Initialize some variables
-2. Find the start of the log
-3. Record stats as needed (kills, deaths, states, etc.)
-4. Determine exit point of log
-5. Draw a header showing who won
-6. Draw two tables with both team's stats
+1. Validate passed URL if provided at this point
+2. Initialize some variables
+3. Find the start of the log
+4. Record stats as needed (kills, deaths, states, etc.)
+5. Determine exit point of log
+6. Draw a header showing who won
+7. Draw two tables with both team's stats
 
 
 After some initialization, the program checks the supplied URL and makes sure that it is from replay.pokemonshowdown.com, then ensures that the provided replay exists (even a valid replay URL can eventually be deleted after a certain amount of time).
