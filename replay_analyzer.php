@@ -595,6 +595,11 @@
 			$lastMovePoke = getPokeByPlayerAndNickname($playerAndNickname);
 			
 			$lastMoveUsed = $splitLine[3];
+			
+			//Have to handle this here
+			if($lastMoveUsed == "Memento"){
+				$lastMovePoke->fainted = 1;
+			}
 		}
 		
 		//////CASE -STATUS
