@@ -854,9 +854,6 @@
 			return $playerAndNicknameSplit;
 		}
 		
-		//May need the address returned sometimes. Anywhere where I
-		//	use the address was done by trial and error and may not
-		//	be needed anymore but I don't wan to touch it
 		//$playerAndNickname is expected as an array returned from
 		//	getPlayerAndNickname, not the splitLine segment
 		function getPokeByPlayerAndNickname($playerAndNickname){
