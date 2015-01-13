@@ -3,7 +3,7 @@ Pokemon Replay Analyzer
 
 Parses a Pokemon Showdown replay website and determines K/D of each Pokemon.
 Website currently hosted at:
-	http://www.pokemonbattlefederation.com/replay_analyzer.php
+	http://bretgourdie.com/pokemon-replay-analyzer/replay_analyzer.php
 
 Instructions
 ------
