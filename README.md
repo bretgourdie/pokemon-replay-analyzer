@@ -47,4 +47,4 @@ Some weird stuff I came across
 
 * There's a "player" command way far down in the log. I haven't looked too far into it but it's either when the other player leaves the room or a complete and total mystery.
 
-* It's impossible to determine who started weather on the 0th turn without having a list of Pokemon who can cause weather ona switch-in. This isn't consistent with ANY OTHER turn (I think) as the weather starts as soon as the relevant switch-in occurs, not after both switch-ins happen.
+* It's impossible to determine who started weather on the 0th turn without having a list of Pokemon who can cause weather on a switch-in. This isn't consistent with ANY OTHER turn (I think) as the weather starts as soon as the relevant switch-in occurs, not after both switch-ins happen.
